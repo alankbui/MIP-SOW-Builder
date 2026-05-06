@@ -2,7 +2,7 @@
 
 A single-page tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP)** engagements.
 
-**[Launch the tool →](https://hiteshjo.github.io/MIP-SOW-Builder/mip-sow-generator.html)**
+**[Launch the tool →](https://hiteshsai.github.io/MIP-SOW-Builder/mip-sow-generator.html)**
 
 ## Features
 
@@ -27,10 +27,10 @@ xdg-open mip-sow-generator.html     # Linux
 
 ### Hosted on GitHub Pages
 
-This repo is configured to deploy automatically via GitHub Pages. After enabling Pages in your repo settings (source: **GitHub Actions**), every push to `main` publishes the tool at:
+This repo deploys automatically via GitHub Pages. Every push to `main` publishes the tool at:
 
 ```
-https://<your-username>.github.io/MIP-SOW-Builder/mip-sow-generator.html
+https://hiteshsai.github.io/MIP-SOW-Builder/mip-sow-generator.html
 ```
 
 ## Project Structure
