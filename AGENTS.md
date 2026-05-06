@@ -2,33 +2,63 @@
 
 ## Project Overview
 
-Single-page HTML tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP)** engagements. Everything lives in one self-contained file: [mip-sow-generator.html](mip-sow-generator.html).
+Single-page HTML tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP)** engagements. Everything lives in one self-contained file: [mip-sow-generator.html](mip-sow-generator.html). ~878 lines total.
 
 ## Architecture
 
 - **No build system, no dependencies, no frameworks** — pure HTML + CSS + vanilla JS in a single file
-- Left panel: multi-step form (engagement details → environment → service selection → engagement type)
+- `<style>` block (lines ~8–114) → HTML form + output panels → `<script>` block (lines ~743–878)
+- Left panel: 6 form sections (all visible, no step wizard — user scrolls)
 - Right panel: generated SOW document with print/copy actions
-- CSS is in a `<style>` block; JS is in a `<script>` block at the bottom
+- Two-column CSS grid: form panel (430px fixed) + output panel (1fr flexible)
+
+## Form Structure
+
+| Section | Key IDs | Type |
+|---------|---------|------|
+| Engagement Details | `partnerName`, `customerName`, `preparedBy`, `startDate`, `duration` | text, date, select |
+| Customer Environment | `userCount`, `license`, `industry`, `maturity` | select × 4 |
+| P1 Foundation Services | `#p1` container | checkbox group |
+| P2 Intermediate Services | `#p2` container | checkbox group |
+| P3 Advanced Services | `#p3` container | checkbox group |
+| Engagement Type | `engType`, `ms_monitor`, `ms_tuning`, `ms_reporting`, `ms_incidents` | select + checkboxes |
+
+## Key Functions
+
+| Function | Purpose |
+|----------|---------|
+| `generateSOW()` | Main entry — reads form, builds 11-section SOW HTML, injects into `#sowDoc` |
+| `getServices()` | Returns `[{label, effort, tier}]` from checked service checkboxes |
+| `getManagedServices()` | Returns descriptive strings for checked `ms_*` checkboxes |
+| `toggleAll(groupId)` | Select/deselect all checkboxes in a tier group |
+| `fmtDate(v)` | Formats date input to "Month Day, Year" or placeholder |
+| `rows(items)` / `li(items)` / `phase(...)` | HTML builder helpers for tables and lists |
+| `copySOW()` | Clipboard copy via `document.execCommand('copy')` with fallback |
+| `resetView()` | Hide SOW, re-show placeholder |
 
 ## Key Patterns
 
-- **MIP services** are organized into 3 priority tiers (P1 Foundation, P2 Intermediate, P3 Advanced), each rendered as a checkbox group (`#p1`, `#p2`, `#p3`)
-- Each service checkbox carries `data-effort` and `data-tier` attributes used during SOW generation
+- **MIP services** in 3 priority tiers (P1/P2/P3), each a checkbox group (`#p1`, `#p2`, `#p3`)
+- Each checkbox carries `data-effort` (e.g. "3–5 days") and `data-tier` (1/2/3) attributes
 - Managed services are separate checkboxes with `id="ms_*"` pattern
-- `generateSOW()` is the main entry point — reads form state, builds HTML string, injects into `#sowDoc`
-- Print support via `@media print` rules that hide the form panel
+- SOW sections 1–11: Executive Summary, Objectives, Scope, Deliverables, Timeline, Partner Responsibilities, Customer Responsibilities, Assumptions, Out of Scope, Investment Summary, Acceptance
+- Sections 4 (Deliverables) and 5 (Timeline) conditionally add rows based on selected tiers/managed services
+- Investment Summary uses `[$ Add Amount]` placeholders — pricing is never auto-calculated
+- Validation: at least 1 service must be selected or `generateSOW()` alerts and returns early
 
 ## Conventions
 
 - Microsoft Fluent-inspired design: `#0078d4` primary blue, Segoe UI font, Fluent color tokens
+- Tier badge colors: `.tier-1` green, `.tier-2` yellow, `.tier-3` red
 - Form fields use `id` attributes for direct `getElementById` access (no query selectors or data binding)
-- SOW sections are numbered 1–11 and follow a fixed document structure
-- All text content is hardcoded in the JS template literals inside `generateSOW()`
+- All text content is hardcoded in JS template literals inside `generateSOW()`
+- Empty form fields render as bracketed placeholders (e.g. `[Partner Company]`, `[Start Date TBD]`)
 
 ## When Modifying
 
-- To add a new MIP service: add a `<label class="checkbox-item">` with `<input type="checkbox" value="..." data-effort="..." data-tier="1|2|3">` inside the appropriate `#p1`, `#p2`, or `#p3` group
-- To add a new SOW section: add to the HTML template in `generateSOW()` and update section numbering
-- To change styling: edit the `<style>` block — no external CSS files
-- To test: open `mip-sow-generator.html` directly in a browser (no server needed)
+- **Add a MIP service:** add `<label class="checkbox-item">` with `<input type="checkbox" value="..." data-effort="..." data-tier="1|2|3">` inside the appropriate `#p1`, `#p2`, or `#p3` group
+- **Add a managed service:** add checkbox with `id="ms_<name>"` in the managed services section; update `getManagedServices()` to map the new ID to a descriptive string
+- **Add a SOW section:** add to the HTML template in `generateSOW()` and update all subsequent section numbers
+- **Change styling:** edit the `<style>` block — no external CSS files
+- **Test:** open `mip-sow-generator.html` directly in a browser (no server needed)
+- **Note:** P1 and P2 have "Select / Deselect All" buttons; P3 does not
