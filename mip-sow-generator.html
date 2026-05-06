@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIP SOW Generator | Microsoft Partner Tool</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f3f2f1; color: #323130; min-height: 100vh; }
+
+        .header { background: #0078d4; color: white; padding: 16px 32px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+        .main { display: grid; grid-template-columns: 430px 1fr; min-height: calc(100vh - 70px); }
+
+        .form-panel { background: white; border-right: 1px solid #edebe9; overflow-y: auto; max-height: calc(100vh - 70px); position: sticky; top: 0; }
+
+        .form-section { padding: 20px 24px; border-bottom: 1px solid #edebe9; }
+        .form-section h2 { font-size: 12px; font-weight: 700; color: #0078d4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .form-section h2::before { content: attr(data-step); background: #0078d4; color: white; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+        .section-note { font-size: 12px; color: #605e5c; margin-bottom: 10px; line-height: 1.5; }
+
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 13px; font-weight: 600; color: #323130; margin-bottom: 5px; }
+        .field label .req { color: #d13438; margin-left: 2px; }
+        .field input, .field select { width: 100%; padding: 7px 10px; border: 1px solid #8a8886; border-radius: 2px; font-size: 13px; font-family: inherit; color: #323130; background: white; }
+        .field input:focus, .field select:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 0 1px #0078d4; }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 6px; }
+        .checkbox-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border: 1px solid #edebe9; border-radius: 4px; cursor: pointer; transition: background 0.1s; }
+        .checkbox-item:hover { background: #f3f2f1; }
+        .checkbox-item input[type="checkbox"] { width: 15px; height: 15px; margin-top: 2px; flex-shrink: 0; cursor: pointer; accent-color: #0078d4; }
+        .checkbox-item .item-title { font-size: 13px; font-weight: 600; color: #323130; line-height: 1.3; }
+        .checkbox-item .item-desc { font-size: 11px; color: #605e5c; margin-top: 2px; line-height: 1.4; }
+
+        .tier-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+        .tier-1 { background: #dff6dd; color: #107c10; }
+        .tier-2 { background: #fff4ce; color: #8a6914; }
+        .tier-3 { background: #fce4e4; color: #a4262c; }
+
+        .select-all-btn { font-size: 12px; color: #0078d4; border: none; background: none; cursor: pointer; padding: 0 0 8px 0; text-decoration: underline; display: block; }
+
+        .generate-section { padding: 20px 24px; background: #f3f2f1; position: sticky; bottom: 0; border-top: 1px solid #edebe9; }
+        .btn-generate { width: 100%; padding: 12px; background: #0078d4; color: white; border: none; border-radius: 2px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+        .btn-generate:hover { background: #106ebe; }
+
+        .output-panel { padding: 32px; overflow-y: auto; max-height: calc(100vh - 70px); }
+        .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80%; color: #8a8886; text-align: center; gap: 12px; }
+        .placeholder h3 { font-size: 16px; font-weight: 400; }
+        .placeholder p { font-size: 13px; }
+
+        .sow-document { display: none; }
+        .sow-document.visible { display: block; }
+
+        .sow-toolbar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-action { padding: 8px 16px; border: 1px solid #8a8886; background: white; border-radius: 2px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; color: #323130; transition: background 0.1s; }
+        .btn-action:hover { background: #f3f2f1; }
+        .btn-action.primary { background: #0078d4; color: white; border-color: #0078d4; }
+        .btn-action.primary:hover { background: #106ebe; }
+
+        .sow-paper { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.12); max-width: 820px; margin: 0 auto; padding: 60px; }
+
+        .sow-header { border-bottom: 3px solid #0078d4; padding-bottom: 24px; margin-bottom: 32px; }
+        .sow-header .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .sow-header .partner-name { font-size: 20px; font-weight: 700; color: #323130; }
+        .sow-header .partner-sub { font-size: 12px; color: #605e5c; margin-top: 3px; }
+        .msft-badge { background: #0078d4; color: white; padding: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-radius: 2px; }
+        .sow-title { font-size: 26px; font-weight: 700; color: #0078d4; margin: 20px 0 6px; }
+        .sow-subtitle { font-size: 14px; color: #605e5c; }
+        .sow-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; background: #f3f2f1; padding: 16px; border-radius: 4px; }
+        .meta-label { font-weight: 700; color: #323130; font-size: 12px; }
+        .meta-value { color: #605e5c; font-size: 12px; }
+
+        .sow-section { margin-bottom: 28px; }
+        .sow-section h2 { font-size: 15px; font-weight: 700; color: #0078d4; border-left: 3px solid #0078d4; padding-left: 10px; margin-bottom: 12px; }
+        .sow-section h3 { font-size: 13px; font-weight: 700; color: #323130; margin: 14px 0 6px; }
+        .sow-section p { font-size: 13px; line-height: 1.65; color: #323130; }
+        .sow-section ul { list-style: none; padding: 0; }
+        .sow-section ul li { font-size: 13px; line-height: 1.65; color: #323130; padding: 3px 0 3px 16px; position: relative; }
+        .sow-section ul li::before { content: "▸"; color: #0078d4; position: absolute; left: 0; font-size: 11px; top: 5px; }
+
+        .sow-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        .sow-table th { background: #0078d4; color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+        .sow-table td { padding: 8px 12px; border-bottom: 1px solid #edebe9; color: #323130; vertical-align: top; }
+        .sow-table tr:nth-child(even) td { background: #f9f8f7; }
+
+        .notice-box { background: #eff6fc; border: 1px solid #c7e0f4; border-left: 4px solid #0078d4; padding: 12px 14px; border-radius: 0 4px 4px 0; font-size: 12px; color: #323130; line-height: 1.5; margin-top: 12px; }
+
+        .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 20px; }
+        .sig-block { font-size: 12px; line-height: 1.8; }
+        .sig-block .sig-party { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+        .sig-line { border-top: 1px solid #323130; padding-top: 4px; margin-top: 20px; }
+
+        @media print {
+            .header, .form-panel, .sow-toolbar { display: none !important; }
+            .main { display: block; }
+            .output-panel { padding: 0; max-height: none; overflow: visible; }
+            .sow-document { display: block !important; }
+            .sow-paper { box-shadow: none; padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <svg width="30" height="30" viewBox="0 0 32 32">
+        <rect x="1" y="1" width="14" height="14" fill="#f25022"/>
+        <rect x="17" y="1" width="14" height="14" fill="#7fba00"/>
+        <rect x="1" y="17" width="14" height="14" fill="#00a4ef"/>
+        <rect x="17" y="17" width="14" height="14" fill="#ffb900"/>
+    </svg>
+    <div>
+        <h1>Microsoft Purview MIP — SOW Generator</h1>
+        <p>Microsoft Technology Practice (MTP) · Channel Partner Tool · V1</p>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- FORM PANEL -->
+    <div class="form-panel">
+
+        <!-- Step 1: Engagement Details -->
+        <div class="form-section">
+            <h2 data-step="1">Engagement Details</h2>
+            <div class="field">
+                <label>Partner Company Name <span class="req">*</span></label>
+                <input type="text" id="partnerName" placeholder="e.g. Contoso Technologies">
+            </div>
+            <div class="field">
+                <label>Customer Name <span class="req">*</span></label>
+                <input type="text" id="customerName" placeholder="e.g. Fabrikam Inc.">
+            </div>
+            <div class="field">
+                <label>Prepared By</label>
+                <input type="text" id="preparedBy" placeholder="e.g. Jane Smith">
+            </div>
+            <div class="field">
+                <label>Estimated Start Date</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="field">
+                <label>Engagement Duration</label>
+                <select id="duration">
+                    <option value="">Select...</option>
+                    <option value="2 weeks">2 Weeks</option>
+                    <option value="4 weeks (1 month)">4 Weeks (1 Month)</option>
+                    <option value="6 weeks">6 Weeks</option>
+                    <option value="8 weeks (2 months)">8 Weeks (2 Months)</option>
+                    <option value="3 months">3 Months</option>
+                    <option value="6 months (Managed Service)">6 Months — Managed Service</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Step 2: Customer Environment -->
+        <div class="form-section">
+            <h2 data-step="2">Customer Environment</h2>
+            <div class="field">
+                <label>Number of Licensed Users</label>
+                <select id="userCount">
+                    <option value="">Select...</option>
+                    <option value="1–50 users">1–50 users (SMB)</option>
+                    <option value="51–250 users">51–250 users</option>
+                    <option value="251–1,000 users">251–1,000 users</option>
+                    <option value="1,000–5,000 users">1,000–5,000 users</option>
+                    <option value="5,000+ users">5,000+ users (Enterprise)</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Microsoft 365 License</label>
+                <select id="license">
+                    <option value="">Select...</option>
+                    <option value="Microsoft 365 Business Premium">M365 Business Premium</option>
+                    <option value="Microsoft 365 E3">Microsoft 365 E3</option>
+                    <option value="Microsoft 365 E5">Microsoft 365 E5</option>
+                    <option value="Microsoft 365 E5 Compliance (Add-on)">M365 E5 Compliance (Add-on)</option>
+                    <option value="Microsoft 365 E5 Information Protection &amp; Governance">M365 E5 Info Protection &amp; Governance</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Customer Industry</label>
+                <select id="industry">
+                    <option value="">Select...</option>
+                    <option value="Financial Services">Financial Services</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Government / Public Sector">Government / Public Sector</option>
+                    <option value="Retail / E-Commerce">Retail / E-Commerce</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Professional Services">Professional Services</option>
+                    <option value="Education">Education</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Existing MIP Maturity</label>
+                <select id="maturity">
+                    <option value="">Select...</option>
+                    <option value="No existing deployment (Greenfield)">No existing deployment — Greenfield</option>
+                    <option value="Labels created but not yet deployed">Labels created, not yet deployed</option>
+                    <option value="Labels deployed, no auto-labeling">Labels deployed, no auto-labeling</option>
+                    <option value="Partial MIP deployment in place">Partial deployment in place</option>
+                    <option value="Mature deployment — optimization needed">Mature deployment — optimization needed</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Step 3: Priority 1 Services -->
+        <div class="form-section">
+            <h2 data-step="3">MIP Services — Foundation <span class="tier-tag tier-1">Priority 1</span></h2>
+            <p class="section-note">Core labeling capabilities. Recommended for all customers regardless of maturity.</p>
+            <button class="select-all-btn" onclick="toggleAll('p1')">Select / Deselect all Priority 1</button>
+            <div class="checkbox-group" id="p1">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Enable Microsoft Purview Audit Logging" data-effort="1–2 days" data-tier="1">
+                    <div>
+                        <div class="item-title">Enable Audit Logging</div>
+                        <div class="item-desc">Activate Purview audit log — required prerequisite for all MIP features and compliance reporting.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Design sensitivity label taxonomy (Public, General, Confidential, Highly Confidential)" data-effort="3–5 days" data-tier="1">
+                    <div>
+                        <div class="item-title">Sensitivity Label Taxonomy Design</div>
+                        <div class="item-desc">Define label hierarchy aligned to customer's data classification needs: Public → General → Confidential → Highly Confidential.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Create and configure sensitivity labels in Microsoft Purview portal" data-effort="2 days" data-tier="1">
+                    <div>
+                        <div class="item-title">Sensitivity Label Creation &amp; Configuration</div>
+                        <div class="item-desc">Configure labels with encryption, content marking (headers/footers/watermarks), and access restrictions.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy label policies to target user groups" data-effort="1–2 days" data-tier="1">
+                    <div>
+                        <div class="item-title">Label Policy Deployment</div>
+                        <div class="item-desc">Publish label policies to targeted security groups, including default label and justification settings.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure mandatory labeling and default label enforcement" data-effort="1 day" data-tier="1">
+                    <div>
+                        <div class="item-title">Mandatory &amp; Default Label Enforcement</div>
+                        <div class="item-desc">Require users to label all documents and emails before saving/sending; set a default label for unlabeled content.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="End-user training and awareness sessions on sensitivity labeling" data-effort="1–2 days" data-tier="1">
+                    <div>
+                        <div class="item-title">End-User Training &amp; Adoption</div>
+                        <div class="item-desc">Deliver training covering label usage, justification prompts, and change management best practices.</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Step 4: Priority 2 Services -->
+        <div class="form-section">
+            <h2 data-step="4">MIP Services — Intermediate <span class="tier-tag tier-2">Priority 2</span></h2>
+            <p class="section-note">Automated classification and monitoring for customers with foundational labels in place.</p>
+            <button class="select-all-btn" onclick="toggleAll('p2')">Select / Deselect all Priority 2</button>
+            <div class="checkbox-group" id="p2">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure custom sensitive information types (SITs)" data-effort="3–5 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Custom Sensitive Information Types (SITs)</div>
+                        <div class="item-desc">Create custom SITs using regex, keyword dictionaries, or Exact Data Match (EDM) for industry-specific data patterns.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy client-side auto-labeling (recommended and automatic) in Office apps" data-effort="2–3 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Client-Side Auto-Labeling in Office Apps</div>
+                        <div class="item-desc">Configure Word, Excel, PowerPoint, and Outlook to recommend or auto-apply labels when sensitive content is detected.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy service-side auto-labeling policies for SharePoint, OneDrive, and Exchange" data-effort="3–5 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Service-Side Auto-Labeling Policies</div>
+                        <div class="item-desc">Run simulation and enforcement policies to automatically label content at rest in SharePoint, OneDrive, and Exchange Online.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure trainable classifiers for intelligent content detection" data-effort="3–5 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Trainable Classifiers</div>
+                        <div class="item-desc">Leverage pre-built or custom trainable classifiers for intelligent detection beyond pattern-based matching.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Enable Content Explorer and Activity Explorer for labeling visibility" data-effort="1 day" data-tier="2">
+                    <div>
+                        <div class="item-title">Content Explorer &amp; Activity Explorer</div>
+                        <div class="item-desc">Enable visibility into labeled content locations and user labeling activity across Microsoft 365 services.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Apply sensitivity labels to Microsoft Teams, SharePoint sites, and Microsoft 365 Groups (container labels)" data-effort="1–2 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Container Label Configuration</div>
+                        <div class="item-desc">Apply sensitivity labels to Teams, SharePoint sites, and M365 Groups to enforce privacy, access, and sharing restrictions.</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Step 5: Priority 3 Services -->
+        <div class="form-section">
+            <h2 data-step="5">MIP Services — Advanced <span class="tier-tag tier-3">Priority 3</span></h2>
+            <p class="section-note">For customers with a mature MIP foundation seeking deeper protection capabilities.</p>
+            <div class="checkbox-group" id="p3">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy Microsoft Purview Information Protection (AIP) on-premises scanner for file shares and SharePoint Server" data-effort="5–7 days" data-tier="3">
+                    <div>
+                        <div class="item-title">On-Premises Scanner Deployment</div>
+                        <div class="item-desc">Install and configure the Purview scanner to classify and label content on on-premises file servers and SharePoint Server.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure label-based encryption and Azure Rights Management (RMS) permissions" data-effort="3–5 days" data-tier="3">
+                    <div>
+                        <div class="item-title">Label-Based Encryption &amp; RMS</div>
+                        <div class="item-desc">Configure Azure Rights Management encryption for Confidential/Highly Confidential labels with co-author/viewer permission models.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Implement Double Key Encryption (DKE) for highest-sensitivity regulated data" data-effort="5–7 days" data-tier="3">
+                    <div>
+                        <div class="item-title">Double Key Encryption (DKE)</div>
+                        <div class="item-desc">Deploy DKE for ultra-sensitive content that must remain inaccessible even to Microsoft — required for certain regulated industries.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Integrate Microsoft Purview MIP SDK with custom or third-party line-of-business applications" data-effort="10+ days" data-tier="3">
+                    <div>
+                        <div class="item-title">MIP SDK / LOB Application Integration</div>
+                        <div class="item-desc">Extend MIP labeling to custom or third-party applications using the Microsoft Purview MIP SDK.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure sensitivity label analytics and compliance dashboards in Microsoft Purview" data-effort="2–3 days" data-tier="3">
+                    <div>
+                        <div class="item-title">Advanced Analytics &amp; Compliance Reporting</div>
+                        <div class="item-desc">Set up label analytics dashboards and automated compliance reports for leadership, audit, and regulatory purposes.</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Step 6: Engagement Type & Managed Services -->
+        <div class="form-section">
+            <h2 data-step="6">Engagement Type</h2>
+            <div class="field">
+                <label>Service Delivery Model</label>
+                <select id="engType">
+                    <option value="">Select...</option>
+                    <option value="One-Time Deployment">One-Time Deployment</option>
+                    <option value="Deployment + 30-Day Hypercare">Deployment + 30-Day Hypercare</option>
+                    <option value="Ongoing Managed Service">Ongoing Managed Service</option>
+                    <option value="Assessment &amp; Roadmap Only">Assessment &amp; Roadmap Only</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Ongoing Managed Services (Optional)</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="ms_monitor">
+                        <div>
+                            <div class="item-title">Monthly MIP Health Monitoring</div>
+                            <div class="item-desc">Label coverage, auto-labeling effectiveness, and user compliance reviewed monthly.</div>
+                        </div>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="ms_tuning">
+                        <div>
+                            <div class="item-title">Quarterly Policy Tuning</div>
+                            <div class="item-desc">Review and update label policies, SITs, and auto-labeling rules quarterly.</div>
+                        </div>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="ms_reporting">
+                        <div>
+                            <div class="item-title">Compliance Reporting</div>
+                            <div class="item-desc">Monthly or quarterly compliance reports delivered to customer stakeholders.</div>
+                        </div>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="ms_incidents">
+                        <div>
+                            <div class="item-title">Incident Response Support</div>
+                            <div class="item-desc">Priority support for MIP-related incidents including mislabeled data and policy exceptions.</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="generate-section">
+            <button class="btn-generate" onclick="generateSOW()">⚡ Generate SOW Document</button>
+        </div>
+
+    </div><!-- /form-panel -->
+
+    <!-- OUTPUT PANEL -->
+    <div class="output-panel">
+
+        <div class="placeholder" id="placeholder">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                <rect x="15" y="8" width="50" height="64" rx="4" stroke="#0078d4" stroke-width="2.5" fill="none"/>
+                <line x1="25" y1="24" x2="55" y2="24" stroke="#0078d4" stroke-width="2"/>
+                <line x1="25" y1="33" x2="55" y2="33" stroke="#0078d4" stroke-width="2"/>
+                <line x1="25" y1="42" x2="45" y2="42" stroke="#0078d4" stroke-width="2"/>
+                <line x1="25" y1="51" x2="50" y2="51" stroke="#0078d4" stroke-width="2"/>
+                <line x1="25" y1="60" x2="40" y2="60" stroke="#0078d4" stroke-width="2"/>
+            </svg>
+            <h3>Your SOW will appear here</h3>
+            <p>Fill in the form on the left and click <strong>Generate SOW Document</strong></p>
+        </div>
+
+        <div class="sow-document" id="sowDoc">
+            <!-- Populated by JS -->
+        </div>
+
+    </div>
+
+</div><!-- /main -->
+
+<script>
+function toggleAll(groupId) {
+    const boxes = document.querySelectorAll('#' + groupId + ' input[type="checkbox"]');
+    const allChecked = [...boxes].every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+}
+
+function getServices() {
+    return [...document.querySelectorAll('.checkbox-group input[type="checkbox"][data-tier]:checked')]
+        .map(b => ({ label: b.value, effort: b.dataset.effort, tier: b.dataset.tier }));
+}
+
+function getManagedServices() {
+    const items = [];
+    if (document.getElementById('ms_monitor').checked) items.push('Monthly MIP health monitoring — label coverage, policy effectiveness, and user compliance');
+    if (document.getElementById('ms_tuning').checked) items.push('Quarterly policy tuning — sensitivity labels, SITs, and auto-labeling rules');
+    if (document.getElementById('ms_reporting').checked) items.push('Monthly or quarterly compliance reports delivered to customer stakeholders');
+    if (document.getElementById('ms_incidents').checked) items.push('Priority incident response support for MIP-related events and policy exceptions');
+    return items;
+}
+
+function fmtDate(v) {
+    if (!v) return '[Start Date TBD]';
+    const d = new Date(v + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function rows(items) {
+    return items.map(s => `<tr><td>${s.label}</td><td>${s.effort}</td></tr>`).join('');
+}
+
+function li(items) {
+    return items.map(s => `<li>${s}</li>`).join('');
+}
+
+function phase(n, title, items, timespan) {
+    return `<tr><td><strong>Phase ${n} — ${title}</strong></td><td>${items.join('; ')}</td><td>${timespan}</td></tr>`;
+}
+
+function generateSOW() {
+    const partner  = document.getElementById('partnerName').value.trim() || '[Partner Company]';
+    const customer = document.getElementById('customerName').value.trim() || '[Customer Name]';
+    const prepBy   = document.getElementById('preparedBy').value.trim() || '[Author]';
+    const start    = fmtDate(document.getElementById('startDate').value);
+    const duration = document.getElementById('duration').value || '[Duration TBD]';
+    const users    = document.getElementById('userCount').value || '[User Count TBD]';
+    const lic      = document.getElementById('license').value || '[License TBD]';
+    const industry = document.getElementById('industry').value || '[Industry]';
+    const maturity = document.getElementById('maturity').value || '[MIP Maturity TBD]';
+    const engType  = document.getElementById('engType').value || 'One-Time Deployment';
+
+    const services = getServices();
+    const managed  = getManagedServices();
+    const today    = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    if (services.length === 0) {
+        alert('Please select at least one MIP service to include in the SOW.');
+        return;
+    }
+
+    const t1 = services.filter(s => s.tier === '1');
+    const t2 = services.filter(s => s.tier === '2');
+    const t3 = services.filter(s => s.tier === '3');
+
+    let phaseNum = 1;
+    let timelineRows = `<tr><td><strong>Phase ${phaseNum++} — Discovery &amp; Design</strong></td><td>Kick-off, requirements gathering, label taxonomy design, environment assessment</td><td>Week 1</td></tr>`;
+    if (t1.length) timelineRows += phase(phaseNum++, 'Foundation Deployment', t1.map(s => s.label), 'Week 2–3');
+    if (t2.length) timelineRows += phase(phaseNum++, 'Intermediate Capabilities', t2.map(s => s.label), 'Week 3–4');
+    if (t3.length) timelineRows += phase(phaseNum++, 'Advanced Capabilities', t3.map(s => s.label), 'Week 4–6');
+    timelineRows += `<tr><td><strong>Phase ${phaseNum} — Testing &amp; Handover</strong></td><td>UAT, end-user training, documentation handover, project closure</td><td>Final Week</td></tr>`;
+
+    const html = `
+    <div class="sow-toolbar">
+        <button class="btn-action primary" onclick="window.print()">🖨 Print / Save as PDF</button>
+        <button class="btn-action" onclick="copySOW()">📋 Copy to Clipboard</button>
+        <button class="btn-action" onclick="resetView()">← Back to Form</button>
+    </div>
+
+    <div class="sow-paper" id="sowContent">
+
+        <div class="sow-header">
+            <div class="top-row">
+                <div>
+                    <div class="partner-name">${partner}</div>
+                    <div class="partner-sub">Microsoft Certified Partner</div>
+                </div>
+                <div class="msft-badge">MICROSOFT PARTNER</div>
+            </div>
+            <div class="sow-title">Statement of Work</div>
+            <div class="sow-subtitle">Microsoft Purview Information Protection (MIP) — Managed Services Engagement</div>
+            <div class="sow-meta-grid">
+                <div><span class="meta-label">Prepared for: </span><span class="meta-value">${customer}</span></div>
+                <div><span class="meta-label">Prepared by: </span><span class="meta-value">${partner}</span></div>
+                <div><span class="meta-label">Date prepared: </span><span class="meta-value">${today}</span></div>
+                <div><span class="meta-label">Author: </span><span class="meta-value">${prepBy}</span></div>
+                <div><span class="meta-label">Estimated start: </span><span class="meta-value">${start}</span></div>
+                <div><span class="meta-label">Engagement duration: </span><span class="meta-value">${duration}</span></div>
+                <div><span class="meta-label">Delivery model: </span><span class="meta-value">${engType}</span></div>
+                <div><span class="meta-label">Industry: </span><span class="meta-value">${industry}</span></div>
+            </div>
+        </div>
+
+        <div class="sow-section">
+            <h2>1. Executive Summary</h2>
+            <p>This Statement of Work describes the professional services to be delivered by <strong>${partner}</strong> to <strong>${customer}</strong> for the deployment and configuration of <strong>Microsoft Purview Information Protection (MIP)</strong>. The engagement is designed to enable ${customer} to classify, label, and protect sensitive data across Microsoft 365 services in alignment with Microsoft's recommended deployment guidance.</p>
+            <br>
+            <p>${customer} operates in the <strong>${industry}</strong> sector with approximately <strong>${users}</strong> licensed on <strong>${lic}</strong>. Current MIP maturity: <em>${maturity}</em>. This engagement will accelerate ${customer}'s data security posture by delivering structured, phased MIP capabilities that reduce the risk of data oversharing and enable regulatory compliance.</p>
+        </div>
+
+        <div class="sow-section">
+            <h2>2. Objectives</h2>
+            <ul>
+                <li>Establish a consistent, enforceable data classification framework using Microsoft Purview sensitivity labels</li>
+                <li>Reduce the risk of sensitive data oversharing and unauthorized access across Microsoft 365</li>
+                <li>Enable automated labeling and protection policies for content at rest and in transit</li>
+                <li>Provide end-users with a guided, low-friction labeling experience in Office apps</li>
+                <li>Build a measurable, auditable foundation for ongoing compliance and data governance</li>
+            </ul>
+        </div>
+
+        <div class="sow-section">
+            <h2>3. Scope of Services</h2>
+            <p>The following Microsoft Purview MIP activities are included in this engagement:</p>
+
+            ${t1.length ? `<h3>Foundation Services — Priority 1 <span class="tier-tag tier-1" style="vertical-align:middle;">Required</span></h3>
+            <table class="sow-table"><thead><tr><th>Service / Activity</th><th>Estimated Effort</th></tr></thead><tbody>${rows(t1)}</tbody></table>` : ''}
+
+            ${t2.length ? `<h3>Intermediate Services — Priority 2 <span class="tier-tag tier-2" style="vertical-align:middle;">Recommended</span></h3>
+            <table class="sow-table"><thead><tr><th>Service / Activity</th><th>Estimated Effort</th></tr></thead><tbody>${rows(t2)}</tbody></table>` : ''}
+
+            ${t3.length ? `<h3>Advanced Services — Priority 3 <span class="tier-tag tier-3" style="vertical-align:middle;">Advanced</span></h3>
+            <table class="sow-table"><thead><tr><th>Service / Activity</th><th>Estimated Effort</th></tr></thead><tbody>${rows(t3)}</tbody></table>` : ''}
+
+            ${managed.length ? `<h3>Ongoing Managed Services</h3><ul>${li(managed)}</ul>` : ''}
+        </div>
+
+        <div class="sow-section">
+            <h2>4. Deliverables</h2>
+            <table class="sow-table">
+                <thead><tr><th>Deliverable</th><th>Description</th><th>Format</th></tr></thead>
+                <tbody>
+                    <tr><td>MIP Design Document</td><td>Label taxonomy, policy decisions, and configuration rationale</td><td>Word / PDF</td></tr>
+                    <tr><td>Sensitivity Label Configuration</td><td>Fully configured labels and policies in Microsoft Purview portal</td><td>Live Environment</td></tr>
+                    <tr><td>Policy Deployment Record</td><td>Documentation of deployed label policies and target groups</td><td>Word / PDF</td></tr>
+                    <tr><td>End-User Training Materials</td><td>Training deck and quick-reference guide for sensitivity labeling</td><td>PowerPoint / PDF</td></tr>
+                    ${t2.length ? '<tr><td>Auto-Labeling Policy Report</td><td>Simulation results and enforcement policy metrics</td><td>Excel / PDF</td></tr>' : ''}
+                    ${managed.length ? '<tr><td>Ongoing Reports</td><td>Monthly / quarterly MIP health and compliance summaries</td><td>PDF / Email</td></tr>' : ''}
+                    <tr><td>Project Closure Report</td><td>Summary of completed work, known gaps, and recommended next steps</td><td>Word / PDF</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sow-section">
+            <h2>5. Project Timeline</h2>
+            <table class="sow-table">
+                <thead><tr><th>Phase</th><th>Key Activities</th><th>Duration</th></tr></thead>
+                <tbody>${timelineRows}</tbody>
+            </table>
+            <p style="margin-top:10px;font-size:12px;color:#605e5c;"><em>Note: Timeline is indicative. Actual duration may vary based on environment complexity, customer availability, and number of in-scope services.</em></p>
+        </div>
+
+        <div class="sow-section">
+            <h2>6. Partner Responsibilities (${partner})</h2>
+            <ul>
+                <li>Provide a certified Microsoft Purview / MIP engineer for the duration of the engagement</li>
+                <li>Lead all technical configuration activities within the Microsoft Purview compliance portal</li>
+                <li>Develop and present the label taxonomy design for customer approval before deployment</li>
+                <li>Deliver end-user training sessions and provide all training materials</li>
+                <li>Perform testing and validation of label policies prior to production go-live</li>
+                <li>Produce and deliver all project deliverables listed in Section 4</li>
+                <li>Assign a dedicated project manager as the single point of contact throughout the engagement</li>
+                <li>Proactively communicate blockers, licensing gaps, or scope risks to the customer</li>
+            </ul>
+        </div>
+
+        <div class="sow-section">
+            <h2>7. Customer Responsibilities (${customer})</h2>
+            <ul>
+                <li>Designate a project sponsor and technical point of contact for the duration of the engagement</li>
+                <li>Provide Global Administrator or Compliance Administrator access to the Microsoft Purview portal</li>
+                <li>Review and approve the label taxonomy design before deployment commences</li>
+                <li>Ensure all prerequisite licenses (${lic}) are provisioned prior to kick-off</li>
+                <li>Make key stakeholders available for requirements workshops and end-user training</li>
+                <li>Review and approve deliverables within 5 business days of receipt</li>
+                <li>Communicate regulatory, compliance, or business requirements that must be reflected in the label design</li>
+            </ul>
+        </div>
+
+        <div class="sow-section">
+            <h2>8. Assumptions &amp; Dependencies</h2>
+            <ul>
+                <li>${customer} holds active ${lic} licenses for all ${users} in scope prior to engagement start</li>
+                <li>Microsoft 365 tenant is in a healthy, supported configuration with no outstanding service health incidents</li>
+                <li>Required administrative access will be granted within 2 business days of project kick-off</li>
+                <li>Customer stakeholders will be available for scheduled sessions with at least 3 business days' notice</li>
+                <li>Any existing sensitivity labels or policies will be documented and reviewed in Phase 1 before changes are applied</li>
+                <li>This engagement is scoped to <strong>Microsoft Purview Information Protection (MIP) only</strong>. Data Loss Prevention (DLP), Insider Risk Management, and eDiscovery are out of scope unless agreed separately</li>
+            </ul>
+        </div>
+
+        <div class="sow-section">
+            <h2>9. Out of Scope</h2>
+            <ul>
+                <li>Microsoft Purview Data Loss Prevention (DLP) policy configuration</li>
+                <li>Insider Risk Management and Communication Compliance</li>
+                <li>Microsoft Defender for Cloud Apps (MDCA) integration</li>
+                <li>eDiscovery, Records Management, and Audit Premium</li>
+                <li>Microsoft Entra ID (Azure AD) conditional access or identity configuration</li>
+                <li>Custom development or scripting beyond MIP configuration tasks</li>
+                <li>Network, infrastructure, or endpoint configuration changes</li>
+                <li>End-user helpdesk support post-deployment (unless Ongoing Managed Services are selected)</li>
+            </ul>
+            <div class="notice-box">
+                📌 Any work identified during the engagement that falls outside this defined scope will be addressed through a separate change request or follow-on Statement of Work.
+            </div>
+        </div>
+
+        <div class="sow-section">
+            <h2>10. Investment Summary</h2>
+            <table class="sow-table">
+                <thead><tr><th>Service Component</th><th>Investment (USD)</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td>Professional Services — Deployment &amp; Configuration</td><td>[$ Add Amount]</td><td>Fixed fee or Time &amp; Materials — per agreement</td></tr>
+                    <tr><td>Training &amp; Adoption</td><td>[$ Add Amount]</td><td>Included or billed separately per agreement</td></tr>
+                    ${managed.length ? '<tr><td>Ongoing Managed Services</td><td>[$ Add Monthly Fee]</td><td>Monthly recurring</td></tr>' : ''}
+                    <tr><td><strong>Total Engagement Value</strong></td><td><strong>[$ Total]</strong></td><td></td></tr>
+                </tbody>
+            </table>
+            <div class="notice-box">
+                💡 Pricing is indicative and subject to final agreement. Microsoft 365 license costs are not included — ${customer} is responsible for all licensing. Volume discounts and partner incentives may apply.
+            </div>
+        </div>
+
+        <div class="sow-section" style="margin-top:40px;padding-top:24px;border-top:2px solid #0078d4;">
+            <h2>11. Acceptance &amp; Sign-Off</h2>
+            <p>By signing below, both parties agree to the scope, deliverables, responsibilities, and terms described in this Statement of Work.</p>
+            <div class="sig-grid">
+                <div class="sig-block">
+                    <div class="sig-party">${partner}</div>
+                    <p>Authorized Representative</p>
+                    <div class="sig-line">Signature</div>
+                    <br>
+                    <div class="sig-line">Printed Name</div>
+                    <br>
+                    <div class="sig-line">Title</div>
+                    <br>
+                    <div class="sig-line">Date</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-party">${customer}</div>
+                    <p>Authorized Representative</p>
+                    <div class="sig-line">Signature</div>
+                    <br>
+                    <div class="sig-line">Printed Name</div>
+                    <br>
+                    <div class="sig-line">Title</div>
+                    <br>
+                    <div class="sig-line">Date</div>
+                </div>
+            </div>
+        </div>
+
+    </div>`;
+
+    document.getElementById('sowDoc').innerHTML = html;
+    document.getElementById('sowDoc').classList.add('visible');
+    document.getElementById('placeholder').style.display = 'none';
+    document.querySelector('.output-panel').scrollTop = 0;
+}
+
+function resetView() {
+    document.getElementById('sowDoc').classList.remove('visible');
+    document.getElementById('placeholder').style.display = 'flex';
+}
+
+function copySOW() {
+    const el = document.getElementById('sowContent');
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    try {
+        document.execCommand('copy');
+        alert('SOW copied to clipboard. Paste into Word or your company template to finalize.');
+    } catch {
+        alert('Select all (Ctrl+A / Cmd+A) inside the document, then copy manually.');
+    }
+    window.getSelection().removeAllRanges();
+}
+</script>
+
+</body>
+</html>
