@@ -488,7 +488,11 @@
                 <strong>Estimated Total Effort:</strong> <span id="effortRange"></span>
             </div>
             <button class="btn-generate" onclick="generateSOW()">⚡ Generate SOW Document</button>
-            <button class="btn-action" onclick="showDecisionTree()" style="width:100%;margin-top:8px;justify-content:center;">🌳 View Decision Tree</button>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="btn-action" onclick="showDecisionTree()" style="flex:1;justify-content:center;">🌳 Decision Tree</button>
+                <button class="btn-action" onclick="document.getElementById('jsonFileInput').click()" style="flex:1;justify-content:center;">📂 Import JSON</button>
+                <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importJSON(this)">
+            </div>
         </div>
 
     </div><!-- /form-panel -->
@@ -1032,6 +1036,103 @@ async function encryptAndDownload(data, password) {
     } catch (err) {
         alert('Encryption failed: ' + err.message);
     }
+}
+
+function importJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = ''; // reset so same file can be re-imported
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const parsed = JSON.parse(e.target.result);
+
+            if (parsed.encrypted) {
+                const password = prompt('This file is encrypted.\nEnter the password to decrypt:');
+                if (!password) return;
+                const data = await decryptJSON(parsed, password);
+                applyFormState(data);
+            } else {
+                applyFormState(parsed);
+            }
+        } catch (err) {
+            alert('Import failed: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+async function decryptJSON(encrypted, password) {
+    const fromBase64 = str => Uint8Array.from(atob(str), c => c.charCodeAt(0));
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+
+    const salt = fromBase64(encrypted.salt);
+    const iv = fromBase64(encrypted.iv);
+    const ciphertext = fromBase64(encrypted.data);
+
+    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt']
+    );
+
+    try {
+        const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ciphertext);
+        return JSON.parse(dec.decode(plaintext));
+    } catch {
+        throw new Error('Incorrect password or corrupted file.');
+    }
+}
+
+function applyFormState(data) {
+    // Engagement details
+    if (data.engagement) {
+        document.getElementById('partnerName').value = data.engagement.partnerName || '';
+        document.getElementById('customerName').value = data.engagement.customerName || '';
+        document.getElementById('preparedBy').value = data.engagement.preparedBy || '';
+        document.getElementById('startDate').value = data.engagement.startDate || '';
+        document.getElementById('duration').value = data.engagement.duration || '';
+        document.getElementById('engType').value = data.engagement.deliveryModel || '';
+    }
+
+    // Environment
+    if (data.environment) {
+        document.getElementById('userCount').value = data.environment.userCount || '';
+        document.getElementById('license').value = data.environment.license || '';
+        document.getElementById('industry').value = data.environment.industry || '';
+        document.getElementById('maturity').value = data.environment.maturity || '';
+    }
+
+    // Update license gating before restoring checkboxes
+    updateLicenseGating();
+
+    // Restore service checkboxes by matching value text
+    if (data.services) {
+        ['p1', 'p2', 'p3'].forEach(tier => {
+            const items = data.services[tier] || [];
+            const boxes = document.querySelectorAll('#' + tier + ' input[type="checkbox"][data-tier]');
+            boxes.forEach(cb => {
+                const match = items.find(i => i.label === cb.value);
+                cb.checked = match ? match.selected : false;
+            });
+        });
+    }
+
+    // Restore managed services
+    if (data.managedServices) {
+        data.managedServices.forEach(ms => {
+            const el = document.getElementById(ms.id);
+            if (el) el.checked = ms.selected;
+        });
+    }
+
+    updateEffortTotal();
+    alert('Form restored from imported file.');
 }
 
 function showDecisionTree() {
