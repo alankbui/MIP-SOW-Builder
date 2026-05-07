@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Single-page HTML tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP)** engagements. Everything lives in one self-contained file: [mip-sow-generator.html](mip-sow-generator.html). ~878 lines total.
+Single-page HTML tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP) & Data Loss Prevention (DLP)** engagements. Everything lives in one self-contained file: [mip-sow-generator.html](mip-sow-generator.html). Scoped to M365 Business Premium + Purview Suite add-ons.
 
 ## Architecture
 
@@ -38,13 +38,17 @@ Single-page HTML tool for Microsoft channel partners to generate Statement of Wo
 
 ## Key Patterns
 
-- **MIP services** in 3 priority tiers (P1/P2/P3), each a checkbox group (`#p1`, `#p2`, `#p3`)
+- **MIP + DLP services** in 3 priority tiers (P1/P2/P3), each a checkbox group (`#p1`, `#p2`, `#p3`)
+  - **P1 (8 items):** Foundation — included with M365 Business Premium (labeling, audit, basic DLP)
+  - **P2 (7 items):** Intermediate — requires Purview Suite add-on (auto-labeling, classifiers, retention)
+  - **P3 (9 items):** Advanced — requires Purview Suite add-on (endpoint DLP, Teams DLP, Copilot DLP, DSPM, DKE, scanner)
 - Each checkbox carries `data-effort` (e.g. "3–5 days") and `data-tier` (1/2/3) attributes
 - Managed services are separate checkboxes with `id="ms_*"` pattern
 - SOW sections 1–11: Executive Summary, Objectives, Scope, Deliverables, Timeline, Partner Responsibilities, Customer Responsibilities, Assumptions, Out of Scope, Investment Summary, Acceptance
 - Sections 4 (Deliverables) and 5 (Timeline) conditionally add rows based on selected tiers/managed services
 - Investment Summary uses `[$ Add Amount]` placeholders — pricing is never auto-calculated
 - Validation: at least 1 service must be selected or `generateSOW()` alerts and returns early
+- License dropdown scoped to: Business Premium, BP + Purview Suite, BP + Defender & Purview Suite
 
 ## Conventions
 
@@ -61,4 +65,4 @@ Single-page HTML tool for Microsoft channel partners to generate Statement of Wo
 - **Add a SOW section:** add to the HTML template in `generateSOW()` and update all subsequent section numbers
 - **Change styling:** edit the `<style>` block — no external CSS files
 - **Test:** open `mip-sow-generator.html` directly in a browser (no server needed)
-- **Note:** P1 and P2 have "Select / Deselect All" buttons; P3 does not
+- **Note:** All tiers (P1, P2, P3) have "Select / Deselect All" buttons

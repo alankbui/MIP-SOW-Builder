@@ -173,10 +173,8 @@
                 <select id="license">
                     <option value="">Select...</option>
                     <option value="Microsoft 365 Business Premium">M365 Business Premium</option>
-                    <option value="Microsoft 365 E3">Microsoft 365 E3</option>
-                    <option value="Microsoft 365 E5">Microsoft 365 E5</option>
-                    <option value="Microsoft 365 E5 Compliance (Add-on)">M365 E5 Compliance (Add-on)</option>
-                    <option value="Microsoft 365 E5 Information Protection &amp; Governance">M365 E5 Info Protection &amp; Governance</option>
+                    <option value="Microsoft 365 Business Premium + Purview Suite Add-on">M365 Business Premium + Purview Suite</option>
+                    <option value="Microsoft 365 Business Premium + Defender &amp; Purview Suite">M365 Business Premium + Defender &amp; Purview Suite</option>
                 </select>
             </div>
             <div class="field">
@@ -211,7 +209,7 @@
         <!-- Step 3: Priority 1 Services -->
         <div class="form-section">
             <h2 data-step="3">MIP Services — Foundation <span class="tier-tag tier-1">Priority 1</span></h2>
-            <p class="section-note">Core labeling capabilities. Recommended for all customers regardless of maturity.</p>
+            <p class="section-note">Core labeling capabilities included with M365 Business Premium. Recommended for all customers regardless of maturity.</p>
             <button class="select-all-btn" onclick="toggleAll('p1')">Select / Deselect all Priority 1</button>
             <div class="checkbox-group" id="p1">
                 <label class="checkbox-item">
@@ -256,13 +254,27 @@
                         <div class="item-desc">Deliver training covering label usage, justification prompts, and change management best practices.</div>
                     </div>
                 </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Enable sensitivity labels for files in SharePoint Online and OneDrive for Business" data-effort="1 day" data-tier="1">
+                    <div>
+                        <div class="item-title">Enable Sensitivity Labels for SharePoint &amp; OneDrive</div>
+                        <div class="item-desc">Activate sensitivity label support for Office files stored in SharePoint and OneDrive so labels persist and are enforceable.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Create and deploy DLP policies for Exchange Online, SharePoint Online, and OneDrive for Business" data-effort="3–5 days" data-tier="1">
+                    <div>
+                        <div class="item-title">DLP Policies — Exchange, SharePoint &amp; OneDrive</div>
+                        <div class="item-desc">Configure Data Loss Prevention policies to detect and restrict sharing of sensitive content across email and cloud storage (included with Business Premium).</div>
+                    </div>
+                </label>
             </div>
         </div>
 
         <!-- Step 4: Priority 2 Services -->
         <div class="form-section">
             <h2 data-step="4">MIP Services — Intermediate <span class="tier-tag tier-2">Priority 2</span></h2>
-            <p class="section-note">Automated classification and monitoring for customers with foundational labels in place.</p>
+            <p class="section-note">Automated classification and monitoring — requires Microsoft Purview Suite add-on or equivalent E5 licensing.</p>
             <button class="select-all-btn" onclick="toggleAll('p2')">Select / Deselect all Priority 2</button>
             <div class="checkbox-group" id="p2">
                 <label class="checkbox-item">
@@ -307,13 +319,21 @@
                         <div class="item-desc">Apply sensitivity labels to Teams, SharePoint sites, and M365 Groups to enforce privacy, access, and sharing restrictions.</div>
                     </div>
                 </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Create and configure retention policies for Exchange Online (expandable to other workloads)" data-effort="2–3 days" data-tier="2">
+                    <div>
+                        <div class="item-title">Retention Policy — Exchange Online</div>
+                        <div class="item-desc">Deploy retention policies for Exchange mailboxes to retain or delete email content based on compliance requirements; expandable to SharePoint, OneDrive, and Teams.</div>
+                    </div>
+                </label>
             </div>
         </div>
 
         <!-- Step 5: Priority 3 Services -->
         <div class="form-section">
             <h2 data-step="5">MIP Services — Advanced <span class="tier-tag tier-3">Priority 3</span></h2>
-            <p class="section-note">For customers with a mature MIP foundation seeking deeper protection capabilities.</p>
+            <p class="section-note">Advanced protection capabilities — requires Microsoft Purview Suite add-on or equivalent E5 licensing.</p>
+            <button class="select-all-btn" onclick="toggleAll('p3')">Select / Deselect all Priority 3</button>
             <div class="checkbox-group" id="p3">
                 <label class="checkbox-item">
                     <input type="checkbox" value="Deploy Microsoft Purview Information Protection (AIP) on-premises scanner for file shares and SharePoint Server" data-effort="5–7 days" data-tier="3">
@@ -348,6 +368,34 @@
                     <div>
                         <div class="item-title">Advanced Analytics &amp; Compliance Reporting</div>
                         <div class="item-desc">Set up label analytics dashboards and automated compliance reports for leadership, audit, and regulatory purposes.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy DLP policies for Endpoint devices (Windows and macOS)" data-effort="3–5 days" data-tier="3">
+                    <div>
+                        <div class="item-title">DLP for Endpoints</div>
+                        <div class="item-desc">Extend Data Loss Prevention to managed Windows and macOS devices — monitor and restrict copy, print, upload, and transfer of sensitive content.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy DLP policies for Microsoft Teams chat and channel messages" data-effort="2–3 days" data-tier="3">
+                    <div>
+                        <div class="item-title">DLP for Teams</div>
+                        <div class="item-desc">Detect and block sensitive content shared in Teams chat and channel messages in real time.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy DLP policies for Microsoft 365 Copilot interactions" data-effort="2–3 days" data-tier="3">
+                    <div>
+                        <div class="item-title">DLP for Copilot</div>
+                        <div class="item-desc">Apply DLP controls to Microsoft 365 Copilot prompts and responses to prevent sensitive data exposure through AI interactions.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Activate Microsoft Purview Data Security Posture Management (DSPM)" data-effort="2–3 days" data-tier="3">
+                    <div>
+                        <div class="item-title">Activate DSPM</div>
+                        <div class="item-desc">Enable Data Security Posture Management for visibility into data risks, oversharing patterns, and AI readiness across the organization.</div>
                     </div>
                 </label>
             </div>
@@ -520,7 +568,7 @@ function generateSOW() {
                 <div class="msft-badge">MICROSOFT PARTNER</div>
             </div>
             <div class="sow-title">Statement of Work</div>
-            <div class="sow-subtitle">Microsoft Purview Information Protection (MIP) — Managed Services Engagement</div>
+            <div class="sow-subtitle">Microsoft Purview Information Protection (MIP) &amp; Data Loss Prevention (DLP) — Managed Services Engagement</div>
             <div class="sow-meta-grid">
                 <div><span class="meta-label">Prepared for: </span><span class="meta-value">${customer}</span></div>
                 <div><span class="meta-label">Prepared by: </span><span class="meta-value">${partner}</span></div>
@@ -627,19 +675,18 @@ function generateSOW() {
                 <li>Required administrative access will be granted within 2 business days of project kick-off</li>
                 <li>Customer stakeholders will be available for scheduled sessions with at least 3 business days' notice</li>
                 <li>Any existing sensitivity labels or policies will be documented and reviewed in Phase 1 before changes are applied</li>
-                <li>This engagement is scoped to <strong>Microsoft Purview Information Protection (MIP) only</strong>. Data Loss Prevention (DLP), Insider Risk Management, and eDiscovery are out of scope unless agreed separately</li>
+                <li>This engagement is scoped to <strong>Microsoft Purview Information Protection (MIP) and Data Loss Prevention (DLP)</strong>. Insider Risk Management, eDiscovery, and other Purview workloads are out of scope unless agreed separately</li>
             </ul>
         </div>
 
         <div class="sow-section">
             <h2>9. Out of Scope</h2>
             <ul>
-                <li>Microsoft Purview Data Loss Prevention (DLP) policy configuration</li>
                 <li>Insider Risk Management and Communication Compliance</li>
                 <li>Microsoft Defender for Cloud Apps (MDCA) integration</li>
                 <li>eDiscovery, Records Management, and Audit Premium</li>
                 <li>Microsoft Entra ID (Azure AD) conditional access or identity configuration</li>
-                <li>Custom development or scripting beyond MIP configuration tasks</li>
+                <li>Custom development or scripting beyond MIP and DLP configuration tasks</li>
                 <li>Network, infrastructure, or endpoint configuration changes</li>
                 <li>End-user helpdesk support post-deployment (unless Ongoing Managed Services are selected)</li>
             </ul>
