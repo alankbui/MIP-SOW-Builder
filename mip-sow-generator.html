@@ -41,6 +41,11 @@
 
         .select-all-btn { font-size: 12px; color: #0078d4; border: none; background: none; cursor: pointer; padding: 0 0 8px 0; text-decoration: underline; display: block; }
 
+        .form-section.locked { opacity: 0.55; pointer-events: none; position: relative; }
+        .form-section.locked .select-all-btn { pointer-events: none; }
+        .license-lock-banner { display: none; background: #fff4ce; border: 1px solid #f0d060; border-left: 4px solid #8a6914; padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px; color: #323130; line-height: 1.4; margin-bottom: 10px; pointer-events: auto; }
+        .form-section.locked .license-lock-banner { display: block; }
+
         .generate-section { padding: 20px 24px; background: #f3f2f1; position: sticky; bottom: 0; border-top: 1px solid #edebe9; }
         .btn-generate { width: 100%; padding: 12px; background: #0078d4; color: white; border: none; border-radius: 2px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
         .btn-generate:hover { background: #106ebe; }
@@ -170,7 +175,7 @@
             </div>
             <div class="field">
                 <label>Microsoft 365 License</label>
-                <select id="license">
+                <select id="license" onchange="updateLicenseGating()">
                     <option value="">Select...</option>
                     <option value="Microsoft 365 Business Premium">M365 Business Premium</option>
                     <option value="Microsoft 365 Business Premium + Purview Suite Add-on">M365 Business Premium + Purview Suite</option>
@@ -274,6 +279,7 @@
         <!-- Step 4: Priority 2 Services -->
         <div class="form-section">
             <h2 data-step="4">MIP Services — Intermediate <span class="tier-tag tier-2">Priority 2</span></h2>
+            <div class="license-lock-banner">🔒 These services require the <strong>Purview Suite add-on</strong>. Change the license selection above to unlock.</div>
             <p class="section-note">Automated classification and monitoring — requires Microsoft Purview Suite add-on or equivalent E5 licensing.</p>
             <button class="select-all-btn" onclick="toggleAll('p2')">Select / Deselect all Priority 2</button>
             <div class="checkbox-group" id="p2">
@@ -332,6 +338,7 @@
         <!-- Step 5: Priority 3 Services -->
         <div class="form-section">
             <h2 data-step="5">MIP Services — Advanced <span class="tier-tag tier-3">Priority 3</span></h2>
+            <div class="license-lock-banner">🔒 These services require the <strong>Purview Suite add-on</strong>. Change the license selection above to unlock.</div>
             <p class="section-note">Advanced protection capabilities — requires Microsoft Purview Suite add-on or equivalent E5 licensing.</p>
             <button class="select-all-btn" onclick="toggleAll('p3')">Select / Deselect all Priority 3</button>
             <div class="checkbox-group" id="p3">
@@ -484,6 +491,21 @@ function toggleAll(groupId) {
     const boxes = document.querySelectorAll('#' + groupId + ' input[type="checkbox"]');
     const allChecked = [...boxes].every(b => b.checked);
     boxes.forEach(b => b.checked = !allChecked);
+}
+
+function updateLicenseGating() {
+    const lic = document.getElementById('license').value;
+    const hasPurview = lic.includes('Purview Suite');
+    const p2Section = document.getElementById('p2').closest('.form-section');
+    const p3Section = document.getElementById('p3').closest('.form-section');
+    if (hasPurview || !lic) {
+        p2Section.classList.remove('locked');
+        p3Section.classList.remove('locked');
+    } else {
+        p2Section.classList.add('locked');
+        p3Section.classList.add('locked');
+        document.querySelectorAll('#p2 input[type="checkbox"], #p3 input[type="checkbox"]').forEach(b => b.checked = false);
+    }
 }
 
 function getServices() {
