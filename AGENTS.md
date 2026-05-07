@@ -30,6 +30,9 @@ Single-page HTML tool for Microsoft channel partners to generate Statement of Wo
 | `generateSOW()` | Main entry — reads form, builds 11-section SOW HTML, injects into `#sowDoc` |
 | `getServices()` | Returns `[{label, effort, tier}]` from checked service checkboxes |
 | `getManagedServices()` | Returns descriptive strings for checked `ms_*` checkboxes |
+| `updateLicenseGating()` | Per-checkbox lock/unlock based on license dropdown and `data-license` attribute |
+| `updateEffortTotal()` | Live effort hours calculation from checked items' `data-effort` |
+| `parseEffort(str)` | Parses effort strings like "12–20 hrs" into `[lo, hi]` |
 | `toggleAll(groupId)` | Select/deselect all checkboxes in a tier group |
 | `fmtDate(v)` | Formats date input to "Month Day, Year" or placeholder |
 | `rows(items)` / `li(items)` / `phase(...)` | HTML builder helpers for tables and lists |
@@ -38,11 +41,12 @@ Single-page HTML tool for Microsoft channel partners to generate Statement of Wo
 
 ## Key Patterns
 
-- **MIP + DLP services** in 3 priority tiers (P1/P2/P3), each a checkbox group (`#p1`, `#p2`, `#p3`)
-  - **P1 (8 items):** Foundation — included with M365 Business Premium (labeling, audit, basic DLP)
-  - **P2 (7 items):** Intermediate — requires Purview Suite add-on (auto-labeling, classifiers, retention)
-  - **P3 (9 items):** Advanced — requires Purview Suite add-on (endpoint DLP, Teams DLP, Copilot DLP, DSPM, DKE, scanner)
-- Each checkbox carries `data-effort` (e.g. "3–5 days") and `data-tier` (1/2/3) attributes
+- **MIP + DLP services** in 3 priority tiers (P1/P2/P3), aligned with Microsoft's Data Security Deployment Guide slide 7
+  - **P1 (8 items):** Foundation — included with M365 Business Premium (audit, labeling, label policies, basic DLP)
+  - **P2 (1 item):** Intermediate — retention policies for Exchange (included with BP)
+  - **P3 (15 items):** Advanced — auto-labeling, custom SITs, encryption, endpoint/Teams/Copilot DLP, DSPM, DKE, scanner, trainable classifiers, Content/Activity Explorer, container labels, MIP SDK, analytics
+- Each checkbox carries `data-effort` (e.g. "12–20 hrs"), `data-tier` (1/2/3), and `data-license` ("bp"|"purview") attributes
+- Per-checkbox license gating: items with `data-license="purview"` are locked (dimmed + 🔒 badge) when license is BP-only
 - Managed services are separate checkboxes with `id="ms_*"` pattern
 - SOW sections 1–11: Executive Summary, Objectives, Scope, Deliverables, Timeline, Partner Responsibilities, Customer Responsibilities, Assumptions, Out of Scope, Investment Summary, Acceptance
 - Sections 4 (Deliverables) and 5 (Timeline) conditionally add rows based on selected tiers/managed services
@@ -65,4 +69,4 @@ Single-page HTML tool for Microsoft channel partners to generate Statement of Wo
 - **Add a SOW section:** add to the HTML template in `generateSOW()` and update all subsequent section numbers
 - **Change styling:** edit the `<style>` block — no external CSS files
 - **Test:** open `mip-sow-generator.html` directly in a browser (no server needed)
-- **Note:** All tiers (P1, P2, P3) have "Select / Deselect All" buttons
+- **Note:** P1 and P3 have "Select / Deselect All" buttons (P2 has only 1 item)

@@ -102,12 +102,37 @@
         .sig-line { border-top: 1px solid #323130; padding-top: 4px; margin-top: 20px; }
 
         @media print {
-            .header, .form-panel, .sow-toolbar { display: none !important; }
+            .header, .form-panel, .sow-toolbar, .tree-overlay { display: none !important; }
             .main { display: block; }
             .output-panel { padding: 0; max-height: none; overflow: visible; }
             .sow-document { display: block !important; }
             .sow-paper { box-shadow: none; padding: 30px; }
         }
+
+        /* Decision Tree Modal */
+        .tree-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .tree-overlay.open { display: flex; }
+        .tree-modal { background: white; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.25); max-width: 780px; width: 94vw; max-height: 88vh; display: flex; flex-direction: column; }
+        .tree-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #edebe9; }
+        .tree-modal-header h2 { font-size: 16px; font-weight: 700; color: #0078d4; margin: 0; }
+        .tree-modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #605e5c; padding: 4px 8px; border-radius: 4px; }
+        .tree-modal-close:hover { background: #f3f2f1; }
+        .tree-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+        .tree-node { margin-left: 20px; border-left: 2px solid #edebe9; padding-left: 14px; margin-bottom: 2px; }
+        .tree-node.root { margin-left: 0; border-left: none; padding-left: 0; }
+        .tree-toggle { cursor: pointer; user-select: none; padding: 5px 0; font-size: 13px; color: #323130; display: flex; align-items: center; gap: 6px; }
+        .tree-toggle:hover { color: #0078d4; }
+        .tree-toggle .arrow { display: inline-block; width: 14px; font-size: 10px; color: #8a8886; transition: transform 0.15s; }
+        .tree-toggle .arrow.collapsed { transform: rotate(-90deg); }
+        .tree-children { overflow: hidden; }
+        .tree-children.collapsed { display: none; }
+        .tree-leaf { padding: 4px 0 4px 20px; font-size: 12px; color: #605e5c; display: flex; align-items: center; gap: 6px; }
+        .tree-leaf .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .tree-leaf .status-dot.included { background: #107c10; }
+        .tree-leaf .status-dot.locked { background: #d13438; }
+        .tree-leaf .status-dot.available { background: #8a8886; }
+        .tree-legend { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #edebe9; margin-bottom: 12px; font-size: 11px; color: #605e5c; }
+        .tree-legend span { display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
@@ -283,52 +308,8 @@
         <!-- Step 4: Priority 2 Services -->
         <div class="form-section">
             <h2 data-step="4">MIP Services: Intermediate <span class="tier-tag tier-2">Priority 2</span></h2>
-            <div class="license-lock-banner">🔒 Some services in this section require the <strong>Purview Suite add-on</strong>. Locked items are indicated individually. Change the license selection above to unlock.</div>
-            <p class="section-note">Automated classification and monitoring. Some items require Microsoft Purview Suite add-on (marked with 🔒 when locked).</p>
-            <button class="select-all-btn" onclick="toggleAll('p2')">Select / Deselect all Priority 2</button>
+            <p class="section-note">Data retention and governance. Per the Microsoft Data Security Deployment Guide, retention policies are the recommended next step after foundational labeling and DLP.</p>
             <div class="checkbox-group" id="p2">
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Configure custom sensitive information types (SITs)" data-effort="12–20 hrs" data-tier="2" data-license="bp">
-                    <div>
-                        <div class="item-title">Custom Sensitive Information Types (SITs)</div>
-                        <div class="item-desc">Create custom SITs using regex, keyword dictionaries, or Exact Data Match (EDM) for industry-specific data patterns.</div>
-                    </div>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Deploy client-side auto-labeling (recommended and automatic) in Office apps" data-effort="8–12 hrs" data-tier="2" data-license="purview">
-                    <div>
-                        <div class="item-title">Client-Side Auto-Labeling in Office Apps</div>
-                        <div class="item-desc">Configure Word, Excel, PowerPoint, and Outlook to recommend or auto-apply labels when sensitive content is detected.</div>
-                    </div>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Deploy service-side auto-labeling policies for SharePoint, OneDrive, and Exchange" data-effort="12–20 hrs" data-tier="2" data-license="purview">
-                    <div>
-                        <div class="item-title">Service-Side Auto-Labeling Policies</div>
-                        <div class="item-desc">Run simulation and enforcement policies to automatically label content at rest in SharePoint, OneDrive, and Exchange Online.</div>
-                    </div>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Configure trainable classifiers for intelligent content detection" data-effort="12–20 hrs" data-tier="2" data-license="purview">
-                    <div>
-                        <div class="item-title">Trainable Classifiers</div>
-                        <div class="item-desc">Leverage pre-built or custom trainable classifiers for intelligent detection beyond pattern-based matching.</div>
-                    </div>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Enable Content Explorer and Activity Explorer for labeling visibility" data-effort="4–6 hrs" data-tier="2" data-license="purview">
-                    <div>
-                        <div class="item-title">Content Explorer &amp; Activity Explorer</div>
-                        <div class="item-desc">Enable visibility into labeled content locations and user labeling activity across Microsoft 365 services.</div>
-                    </div>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="Apply sensitivity labels to Microsoft Teams, SharePoint sites, and Microsoft 365 Groups (container labels)" data-effort="4–8 hrs" data-tier="2" data-license="bp">
-                    <div>
-                        <div class="item-title">Container Label Configuration</div>
-                        <div class="item-desc">Apply sensitivity labels to Teams, SharePoint sites, and M365 Groups to enforce privacy, access, and sharing restrictions.</div>
-                    </div>
-                </label>
                 <label class="checkbox-item">
                     <input type="checkbox" value="Create and configure retention policies for Exchange Online (expandable to other workloads)" data-effort="8–12 hrs" data-tier="2" data-license="bp">
                     <div>
@@ -347,10 +328,24 @@
             <button class="select-all-btn" onclick="toggleAll('p3')">Select / Deselect all Priority 3</button>
             <div class="checkbox-group" id="p3">
                 <label class="checkbox-item">
-                    <input type="checkbox" value="Deploy Microsoft Purview Information Protection (AIP) on-premises scanner for file shares and SharePoint Server" data-effort="20–30 hrs" data-tier="3" data-license="purview">
+                    <input type="checkbox" value="Configure custom sensitive information types (SITs)" data-effort="12–20 hrs" data-tier="3" data-license="bp">
                     <div>
-                        <div class="item-title">On-Premises Scanner Deployment</div>
-                        <div class="item-desc">Install and configure the Purview scanner to classify and label content on on-premises file servers and SharePoint Server.</div>
+                        <div class="item-title">Custom Sensitive Information Types (SITs)</div>
+                        <div class="item-desc">Create custom SITs using regex, keyword dictionaries, or Exact Data Match (EDM) for industry-specific data patterns.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy client-side auto-labeling (recommended and automatic) in Office apps" data-effort="8–12 hrs" data-tier="3" data-license="purview">
+                    <div>
+                        <div class="item-title">Client-Side Auto-Labeling in Office Apps</div>
+                        <div class="item-desc">Configure Word, Excel, PowerPoint, and Outlook to recommend or auto-apply labels when sensitive content is detected.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy service-side auto-labeling policies for SharePoint, OneDrive, and Exchange" data-effort="12–20 hrs" data-tier="3" data-license="purview">
+                    <div>
+                        <div class="item-title">Service-Side Auto-Labeling Policies</div>
+                        <div class="item-desc">Run simulation and enforcement policies to automatically label content at rest in SharePoint, OneDrive, and Exchange Online.</div>
                     </div>
                 </label>
                 <label class="checkbox-item">
@@ -358,6 +353,34 @@
                     <div>
                         <div class="item-title">Label-Based Encryption &amp; RMS</div>
                         <div class="item-desc">Configure Azure Rights Management encryption for Confidential/Highly Confidential labels with co-author/viewer permission models.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Configure trainable classifiers for intelligent content detection" data-effort="12–20 hrs" data-tier="3" data-license="purview">
+                    <div>
+                        <div class="item-title">Trainable Classifiers</div>
+                        <div class="item-desc">Leverage pre-built or custom trainable classifiers for intelligent detection beyond pattern-based matching.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Enable Content Explorer and Activity Explorer for labeling visibility" data-effort="4–6 hrs" data-tier="3" data-license="purview">
+                    <div>
+                        <div class="item-title">Content Explorer &amp; Activity Explorer</div>
+                        <div class="item-desc">Enable visibility into labeled content locations and user labeling activity across Microsoft 365 services.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Apply sensitivity labels to Microsoft Teams, SharePoint sites, and Microsoft 365 Groups (container labels)" data-effort="4–8 hrs" data-tier="3" data-license="bp">
+                    <div>
+                        <div class="item-title">Container Label Configuration</div>
+                        <div class="item-desc">Apply sensitivity labels to Teams, SharePoint sites, and M365 Groups to enforce privacy, access, and sharing restrictions.</div>
+                    </div>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="Deploy Microsoft Purview Information Protection (AIP) on-premises scanner for file shares and SharePoint Server" data-effort="20–30 hrs" data-tier="3" data-license="purview">
+                    <div>
+                        <div class="item-title">On-Premises Scanner Deployment</div>
+                        <div class="item-desc">Install and configure the Purview scanner to classify and label content on on-premises file servers and SharePoint Server.</div>
                     </div>
                 </label>
                 <label class="checkbox-item">
@@ -465,6 +488,7 @@
                 <strong>Estimated Total Effort:</strong> <span id="effortRange"></span>
             </div>
             <button class="btn-generate" onclick="generateSOW()">⚡ Generate SOW Document</button>
+            <button class="btn-action" onclick="showDecisionTree()" style="width:100%;margin-top:8px;justify-content:center;">🌳 View Decision Tree</button>
         </div>
 
     </div><!-- /form-panel -->
@@ -492,6 +516,17 @@
     </div>
 
 </div><!-- /main -->
+
+<!-- Decision Tree Overlay -->
+<div class="tree-overlay" id="treeOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="tree-modal">
+        <div class="tree-modal-header">
+            <h2>Service Decision Tree</h2>
+            <button class="tree-modal-close" onclick="document.getElementById('treeOverlay').classList.remove('open')">&times;</button>
+        </div>
+        <div class="tree-modal-body" id="treeBody"></div>
+    </div>
+</div>
 
 <script>
 function toggleAll(groupId) {
@@ -696,6 +731,7 @@ function generateSOW() {
     <div class="sow-toolbar">
         <button class="btn-action primary" onclick="window.print()">🖨 Print / Save as PDF</button>
         <button class="btn-action" onclick="copySOW()">📋 Copy to Clipboard</button>
+        <button class="btn-action" onclick="exportJSON()">📦 Export JSON</button>
         <button class="btn-action" onclick="resetView()">← Back to Form</button>
     </div>
 
@@ -735,7 +771,7 @@ function generateSOW() {
             <ul>
                 <li>Establish a consistent, enforceable data classification framework using Microsoft Purview sensitivity labels</li>
                 <li>Reduce the risk of sensitive data oversharing and unauthorized access across Microsoft 365</li>
-                <li>Enable automated labeling and protection policies for content at rest and in transit</li>
+                <li>Enable labeling and protection policies for content at rest and in transit</li>
                 <li>Provide end-users with a guided, low-friction labeling experience in Office apps</li>
                 <li>Build a measurable, auditable foundation for ongoing compliance and data governance</li>
             </ul>
@@ -766,7 +802,7 @@ function generateSOW() {
                     <tr><td>Sensitivity Label Configuration</td><td>Fully configured labels and policies in Microsoft Purview portal</td><td>Live Environment</td></tr>
                     <tr><td>Policy Deployment Record</td><td>Documentation of deployed label policies and target groups</td><td>Word / PDF</td></tr>
                     <tr><td>End-User Training Materials</td><td>Training deck and quick-reference guide for sensitivity labeling</td><td>PowerPoint / PDF</td></tr>
-                    ${t2.length ? '<tr><td>Auto-Labeling Policy Report</td><td>Simulation results and enforcement policy metrics</td><td>Excel / PDF</td></tr>' : ''}
+                    ${hasService('auto-labeling') ? '<tr><td>Auto-Labeling Policy Report</td><td>Simulation results and enforcement policy metrics</td><td>Excel / PDF</td></tr>' : ''}
                     ${managed.length ? '<tr><td>Ongoing Reports</td><td>Monthly / quarterly MIP health and compliance summaries</td><td>PDF / Email</td></tr>' : ''}
                     <tr><td>Project Closure Report</td><td>Summary of completed work, known gaps, and recommended next steps</td><td>Word / PDF</td></tr>
                 </tbody>
@@ -902,6 +938,118 @@ function copySOW() {
         alert('Select all (Ctrl+A / Cmd+A) inside the document, then copy manually.');
     }
     window.getSelection().removeAllRanges();
+}
+
+function exportJSON() {
+    const data = {
+        exportDate: new Date().toISOString(),
+        engagement: {
+            partnerName: document.getElementById('partnerName').value.trim(),
+            customerName: document.getElementById('customerName').value.trim(),
+            preparedBy: document.getElementById('preparedBy').value.trim(),
+            startDate: document.getElementById('startDate').value,
+            duration: document.getElementById('duration').value,
+            deliveryModel: document.getElementById('engType').value
+        },
+        environment: {
+            userCount: document.getElementById('userCount').value,
+            license: document.getElementById('license').value,
+            industry: document.getElementById('industry').value,
+            maturity: document.getElementById('maturity').value
+        },
+        services: {
+            p1: [],
+            p2: [],
+            p3: []
+        },
+        managedServices: []
+    };
+
+    document.querySelectorAll('.checkbox-group input[type="checkbox"][data-tier]').forEach(cb => {
+        const item = {
+            label: cb.value,
+            effort: cb.dataset.effort,
+            license: cb.dataset.license,
+            selected: cb.checked,
+            locked: cb.closest('.checkbox-item').classList.contains('license-locked')
+        };
+        if (cb.dataset.tier === '1') data.services.p1.push(item);
+        else if (cb.dataset.tier === '2') data.services.p2.push(item);
+        else data.services.p3.push(item);
+    });
+
+    ['ms_monitor', 'ms_tuning', 'ms_reporting', 'ms_incidents'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data.managedServices.push({ id: id, label: el.closest('.checkbox-item').querySelector('.item-title').textContent, selected: el.checked });
+    });
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (data.engagement.customerName || 'sow') .replace(/[^a-zA-Z0-9]/g, '_') + '_mip_sow.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function showDecisionTree() {
+    const lic = document.getElementById('license').value;
+    const hasPurview = lic.includes('Purview Suite');
+    const licLabel = lic || 'No license selected';
+
+    const tiers = [
+        { id: 'p1', name: 'Priority 1: Foundation', tag: 'tier-1' },
+        { id: 'p2', name: 'Priority 2: Intermediate', tag: 'tier-2' },
+        { id: 'p3', name: 'Priority 3: Advanced', tag: 'tier-3' }
+    ];
+
+    let html = `<div class="tree-legend">
+        <span><span class="status-dot included" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#107c10;"></span> Selected</span>
+        <span><span class="status-dot locked" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d13438;"></span> Locked (needs Purview Suite)</span>
+        <span><span class="status-dot available" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8a8886;"></span> Available (not selected)</span>
+    </div>`;
+
+    html += `<div class="tree-node root">
+        <div class="tree-toggle" onclick="this.querySelector('.arrow').classList.toggle('collapsed');this.nextElementSibling.classList.toggle('collapsed')">
+            <span class="arrow">&#9660;</span> <strong>License:</strong> ${licLabel}
+        </div>
+        <div class="tree-children">`;
+
+    tiers.forEach(tier => {
+        const boxes = document.querySelectorAll('#' + tier.id + ' input[type="checkbox"][data-tier]');
+        if (!boxes.length) return;
+
+        html += `<div class="tree-node">
+            <div class="tree-toggle" onclick="this.querySelector('.arrow').classList.toggle('collapsed');this.nextElementSibling.classList.toggle('collapsed')">
+                <span class="arrow">&#9660;</span> <span class="tier-tag ${tier.tag}">${tier.name}</span> (${[...boxes].filter(b => b.checked).length}/${boxes.length} selected)
+            </div>
+            <div class="tree-children">`;
+
+        boxes.forEach(cb => {
+            const locked = cb.closest('.checkbox-item').classList.contains('license-locked');
+            const selected = cb.checked;
+            const reqPurview = cb.dataset.license === 'purview';
+            let status, statusClass;
+            if (locked) { status = 'Locked'; statusClass = 'locked'; }
+            else if (selected) { status = 'Selected'; statusClass = 'included'; }
+            else { status = 'Available'; statusClass = 'available'; }
+
+            const title = cb.closest('.checkbox-item').querySelector('.item-title').textContent;
+            const licReq = reqPurview ? 'Purview Suite' : 'Business Premium';
+
+            html += `<div class="tree-leaf">
+                <span class="status-dot ${statusClass}"></span>
+                <span><strong>${title}</strong> &middot; ${cb.dataset.effort} &middot; Requires: ${licReq} &middot; <em>${status}</em></span>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+    });
+
+    html += `</div></div>`;
+
+    document.getElementById('treeBody').innerHTML = html;
+    document.getElementById('treeOverlay').classList.add('open');
 }
 </script>
 
