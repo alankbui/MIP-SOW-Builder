@@ -183,7 +183,7 @@
                     <option value="6 weeks">6 Weeks</option>
                     <option value="8 weeks (2 months)">8 Weeks (2 Months)</option>
                     <option value="3 months">3 Months</option>
-                    <option value="6 months (Managed Service)">6 Months (Managed Service)</option>
+                    <option value=">6 months (Managed Services)">>6 Months (Managed Services)</option>
                 </select>
             </div>
         </div>
@@ -242,7 +242,7 @@
         <div class="form-section">
             <h2 data-step="3">MIP Services: Foundation <span class="tier-tag tier-1">Priority 1</span></h2>
             <p class="section-note">Core labeling capabilities included with M365 Business Premium. Recommended for all customers regardless of maturity.</p>
-            <button class="select-all-btn" onclick="toggleAll('p1')">Select / Deselect all Priority 1</button>
+            <button class="select-all-btn" onclick="toggleAll('p1')">Select All / Deselect All</button>
             <div class="checkbox-group" id="p1">
                 <label class="checkbox-item">
                     <input type="checkbox" value="Enable Microsoft Purview Audit Logging" data-effort="4–8 hrs" data-tier="1" data-license="bp">
@@ -323,7 +323,7 @@
             <h2 data-step="5">MIP Services: Advanced <span class="tier-tag tier-3">Priority 3</span></h2>
             <div class="license-lock-banner">🔒 Some services in this section require the <strong>Purview Suite add-on</strong>. Locked items are indicated individually. Change the license selection above to unlock.</div>
             <p class="section-note">Advanced protection capabilities. Some items require Microsoft Purview Suite add-on (marked with 🔒 when locked).</p>
-            <button class="select-all-btn" onclick="toggleAll('p3')">Select / Deselect all Priority 3</button>
+            <button class="select-all-btn" onclick="toggleAll('p3')">Select All / Deselect All</button>
             <div class="checkbox-group" id="p3">
                 <label class="checkbox-item">
                     <input type="checkbox" value="Configure custom sensitive information types (SITs)" data-effort="12–20 hrs" data-tier="3" data-license="bp">
@@ -660,7 +660,7 @@ function generateSOW() {
     const t3 = services.filter(s => s.tier === '3');
 
     // Map duration to total weeks for dynamic timeline
-    const durationWeeks = { '2 weeks': 2, '4 weeks (1 month)': 4, '6 weeks': 6, '8 weeks (2 months)': 8, '3 months': 12, '6 months (Managed Service)': 24 };
+    const durationWeeks = { '2 weeks': 2, '4 weeks (1 month)': 4, '6 weeks': 6, '8 weeks (2 months)': 8, '3 months': 12, '>6 months (Managed Services)': 24 };
     const totalWeeks = durationWeeks[document.getElementById('duration').value] || 4;
 
     // Count active phases (Discovery + selected tiers + Handover)
@@ -743,9 +743,7 @@ function generateSOW() {
             <div class="top-row">
                 <div>
                     <div class="partner-name">${partner}</div>
-                    <div class="partner-sub">Microsoft Certified Partner</div>
                 </div>
-                <div class="msft-badge">MICROSOFT PARTNER</div>
             </div>
             <div class="sow-title">Statement of Work</div>
             <div class="sow-subtitle">Microsoft Purview Information Protection (MIP) &amp; Data Loss Prevention (DLP)</div>
