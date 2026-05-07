@@ -983,13 +983,55 @@ function exportJSON() {
         if (el) data.managedServices.push({ id: id, label: el.closest('.checkbox-item').querySelector('.item-title').textContent, selected: el.checked });
     });
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = (data.engagement.customerName || 'sow') .replace(/[^a-zA-Z0-9]/g, '_') + '_mip_sow.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    const password = prompt('Enter a password to encrypt the exported JSON.\nYou will need this password to decrypt the file later.');
+    if (!password) return;
+
+    encryptAndDownload(data, password);
+}
+
+async function encryptAndDownload(data, password) {
+    try {
+        const enc = new TextEncoder();
+        const plaintext = enc.encode(JSON.stringify(data, null, 2));
+
+        // Generate random salt and IV
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+
+        // Derive key from password using PBKDF2
+        const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt']
+        );
+
+        // Encrypt
+        const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, plaintext);
+
+        // Package as JSON with base64-encoded components
+        const toBase64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const exported = {
+            encrypted: true,
+            algorithm: 'AES-256-GCM',
+            kdf: 'PBKDF2-SHA256-100k',
+            salt: toBase64(salt),
+            iv: toBase64(iv),
+            data: toBase64(ciphertext)
+        };
+
+        const blob = new Blob([JSON.stringify(exported, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (data.engagement.customerName || 'sow').replace(/[^a-zA-Z0-9]/g, '_') + '_mip_sow.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert('Encryption failed: ' + err.message);
+    }
 }
 
 function showDecisionTree() {
