@@ -638,21 +638,30 @@ function li(items) {
     return items.map(s => `<li>${s}</li>`).join('');
 }
 
+function esc(v) {
+    return String(v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function phase(n, title, items, timespan) {
     return `<tr><td><strong>Phase ${n}: ${title}</strong></td><td><ul style="margin:0;padding-left:16px;">${items.map(i => '<li>' + i + '</li>').join('')}</ul></td><td>${timespan}</td></tr>`;
 }
 
 function generateSOW() {
-    const partner  = document.getElementById('partnerName').value.trim() || '[Partner Company]';
-    const customer = document.getElementById('customerName').value.trim() || '[Customer Name]';
-    const prepBy   = document.getElementById('preparedBy').value.trim() || '[Author]';
-    const start    = fmtDate(document.getElementById('startDate').value);
-    const duration = document.getElementById('duration').value || '[Duration TBD]';
-    const users    = document.getElementById('userCount').value || '[User Count TBD]';
-    const lic      = document.getElementById('license').value || '[License TBD]';
-    const industry = document.getElementById('industry').value || '[Industry]';
-    const maturity = document.getElementById('maturity').value || '[MIP Maturity TBD]';
-    const engType  = document.getElementById('engType').value || 'One-Time Deployment';
+    const partner  = esc(document.getElementById('partnerName').value.trim() || '[Partner Company]');
+    const customer = esc(document.getElementById('customerName').value.trim() || '[Customer Name]');
+    const prepBy   = esc(document.getElementById('preparedBy').value.trim() || '[Author]');
+    const start    = esc(fmtDate(document.getElementById('startDate').value));
+    const duration = esc(document.getElementById('duration').value || '[Duration TBD]');
+    const users    = esc(document.getElementById('userCount').value || '[User Count TBD]');
+    const lic      = esc(document.getElementById('license').value || '[License TBD]');
+    const industry = esc(document.getElementById('industry').value || '[Industry]');
+    const maturity = esc(document.getElementById('maturity').value || '[MIP Maturity TBD]');
+    const engType  = esc(document.getElementById('engType').value || 'One-Time Deployment');
 
     const services = getServices();
     const managed  = getManagedServices();
@@ -1154,9 +1163,6 @@ function applyFormState(data) {
         document.getElementById('maturity').value = data.environment.maturity || '';
     }
 
-    // Update license gating before restoring checkboxes
-    updateLicenseGating();
-
     // Restore service checkboxes by matching value text
     if (data.services) {
         ['p1', 'p2', 'p3'].forEach(tier => {
@@ -1169,13 +1175,21 @@ function applyFormState(data) {
         });
     }
 
-    // Restore managed services
+    // Reset and restore managed services
+    ['ms_monitor', 'ms_tuning', 'ms_reporting', 'ms_incidents'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+    });
+
     if (data.managedServices) {
         data.managedServices.forEach(ms => {
             const el = document.getElementById(ms.id);
             if (el) el.checked = ms.selected;
         });
     }
+
+    // Enforce lock state after restoring imported selections
+    updateLicenseGating();
 
     updateEffortTotal();
     alert('Form restored from imported file.');
