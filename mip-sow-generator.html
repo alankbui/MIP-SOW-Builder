@@ -153,7 +153,7 @@
     </svg>
     <div>
         <h1>Microsoft Purview MIP: SOW Generator</h1>
-        <p>Microsoft Technology Practice (MTP) · Channel Partner Tool · V1</p>
+        <p>Channel Partner Tool · V1</p>
     </div>
 </div>
 
@@ -498,6 +498,7 @@
                 <button class="btn-action" onclick="document.getElementById('jsonFileInput').click()" style="flex:1;justify-content:center;">📂 Import JSON</button>
                 <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importJSON(this)">
             </div>
+            <button class="btn-action" onclick="resetAll()" style="width:100%;justify-content:center;margin-top:8px;">🧹 Reset All</button>
         </div>
 
     </div><!-- /form-panel -->
@@ -941,6 +942,28 @@ function generateSOW() {
 function resetView() {
     document.getElementById('sowDoc').classList.remove('visible');
     document.getElementById('placeholder').style.display = 'flex';
+}
+
+function resetAll() {
+    if (!confirm('Clear all fields and selections?')) return;
+
+    ['partnerName', 'customerName', 'preparedBy', 'startDate'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+
+    ['duration', 'userCount', 'license', 'industry', 'maturity', 'engType'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+
+    document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+    });
+
+    document.getElementById('jsonFileInput').value = '';
+
+    updateLicenseGating();
+    updateEffortTotal();
+    resetView();
 }
 
 function exportWord() {
