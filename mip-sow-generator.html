@@ -740,6 +740,7 @@ function generateSOW() {
     <div class="sow-toolbar">
         <button class="btn-action primary" onclick="window.print()">🖨 Print / Save as PDF</button>
         <button class="btn-action" onclick="copySOW()">📋 Copy to Clipboard</button>
+        <button class="btn-action" onclick="exportWord()">📄 Export to Word</button>
         <button class="btn-action" onclick="exportJSON()">📦 Export JSON</button>
         <button class="btn-action" onclick="resetView()">← Back to Form</button>
     </div>
@@ -930,6 +931,47 @@ function generateSOW() {
 function resetView() {
     document.getElementById('sowDoc').classList.remove('visible');
     document.getElementById('placeholder').style.display = 'flex';
+}
+
+function exportWord() {
+    const content = document.getElementById('sowContent').innerHTML;
+    const customer = document.getElementById('customerName').value.trim() || 'Customer';
+    const styles = `
+        <style>
+            body { font-family: 'Segoe UI', Calibri, sans-serif; color: #323130; padding: 40px; }
+            .sow-header { border-bottom: 3px solid #0078d4; padding-bottom: 24px; margin-bottom: 32px; }
+            .partner-name { font-size: 20px; font-weight: 700; color: #323130; }
+            .sow-title { font-size: 26px; font-weight: 700; color: #0078d4; margin: 20px 0 6px; }
+            .sow-subtitle { font-size: 14px; color: #605e5c; }
+            .sow-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; background: #f3f2f1; padding: 16px; }
+            .meta-label { font-weight: 700; color: #323130; font-size: 12px; }
+            .meta-value { color: #605e5c; font-size: 12px; }
+            .sow-section { margin-bottom: 28px; }
+            .sow-section h2 { font-size: 15px; font-weight: 700; color: #0078d4; border-left: 3px solid #0078d4; padding-left: 10px; margin-bottom: 12px; }
+            .sow-section h3 { font-size: 13px; font-weight: 700; color: #323130; margin: 14px 0 6px; }
+            .sow-section p { font-size: 13px; line-height: 1.65; color: #323130; }
+            .sow-section ul { list-style: disc; padding-left: 20px; }
+            .sow-section ul li { font-size: 13px; line-height: 1.65; color: #323130; padding: 3px 0; }
+            .sow-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+            .sow-table th { background: #0078d4; color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+            .sow-table td { padding: 8px 12px; border-bottom: 1px solid #edebe9; color: #323130; vertical-align: top; }
+            .sow-table tr:nth-child(even) td { background: #f9f8f7; }
+            .notice-box { background: #eff6fc; border: 1px solid #c7e0f4; border-left: 4px solid #0078d4; padding: 12px 14px; font-size: 12px; color: #323130; line-height: 1.5; margin-top: 12px; }
+            .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 20px; }
+            .sig-block { font-size: 12px; line-height: 1.8; }
+            .sig-block .sig-party { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+            .sig-line { border-top: 1px solid #323130; padding-top: 4px; margin-top: 20px; }
+        </style>`;
+    const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="utf-8">${styles}</head>
+    <body>${content}</body></html>`;
+    const blob = new Blob([doc], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `MIP-SOW-${customer.replace(/[^a-zA-Z0-9]/g, '_')}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 function copySOW() {
