@@ -539,8 +539,9 @@
 
 <script>
 function toggleAll(groupId) {
-    const boxes = document.querySelectorAll('#' + groupId + ' input[type="checkbox"]');
-    const allChecked = [...boxes].every(b => b.checked);
+    const boxes = [...document.querySelectorAll('#' + groupId + ' input[type="checkbox"]')]
+        .filter(b => !b.closest('.checkbox-item').classList.contains('license-locked'));
+    const allChecked = boxes.every(b => b.checked);
     boxes.forEach(b => b.checked = !allChecked);
     updateEffortTotal();
 }
