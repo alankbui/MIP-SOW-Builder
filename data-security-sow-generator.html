@@ -43,7 +43,11 @@
         .form-panel { background: white; border-right: 1px solid #edebe9; overflow-y: auto; max-height: calc(100vh - 70px); position: sticky; top: 0; }
 
         .form-section { padding: 20px 24px; border-bottom: 1px solid #edebe9; }
-        .form-section h2 { font-size: 12px; font-weight: 700; color: #0078d4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .form-section h2 { font-size: 12px; font-weight: 700; color: #0078d4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; cursor: default; user-select: none; }
+        .form-section.collapsible h2 { cursor: pointer; }
+        .form-section h2 .chevron { margin-left: auto; font-size: 14px; font-weight: 400; color: #605e5c; transition: transform 0.2s; display: inline-block; flex-shrink: 0; }
+        .form-section h2.collapsed .chevron { transform: rotate(-90deg); }
+        .section-body.collapsed { display: none; }
         .form-section h2::before { content: attr(data-step); background: #0078d4; color: white; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
         .section-note { font-size: 12px; color: #605e5c; margin-bottom: 10px; line-height: 1.5; }
 
@@ -367,7 +371,7 @@
                     <input type="checkbox" value="Create and deploy DLP policies for Exchange Online, SharePoint Online, and OneDrive for Business — including simulation mode testing, false positive tuning, and alert/incident management configuration" data-effort="16–28 hrs" data-tier="1" data-license="bp">
                     <div>
                         <div class="item-title">DLP Policies: Exchange, SharePoint &amp; OneDrive</div>
-                        <div class="item-desc">Configure Data Loss Prevention policies to detect and restrict sharing of sensitive content across email and cloud storage. Includes simulation mode testing and rule tuning to minimize false positives before enforcement go-live, and configuration of DLP alert dashboards, notification workflows, and incident escalation procedures (included with Business Premium).</div>
+                        <div class="item-desc">Configure DLP policies for Exchange, SharePoint, and OneDrive to detect and restrict sensitive content sharing. Covers policy simulation and tuning, alert dashboards, and incident notification setup. Included with M365 Business Premium.</div>
                     </div>
                 </label>
             </div>
@@ -468,21 +472,21 @@
                     <input type="checkbox" value="Deploy DLP policies for Endpoint devices (Windows and macOS) — including simulation mode testing, false positive tuning, and alert/incident management configuration" data-effort="16–28 hrs" data-tier="3" data-license="purview">
                     <div>
                         <div class="item-title">DLP for Endpoints</div>
-                        <div class="item-desc">Extend Data Loss Prevention to managed Windows and macOS devices to monitor and restrict copy, print, upload, and transfer of sensitive content. Includes device onboarding validation, simulation mode testing and rule tuning before enforcement go-live, and configuration of workload-specific alert thresholds and incident escalation workflows.</div>
+                        <div class="item-desc">Extend DLP to managed Windows and macOS devices to restrict copy, print, upload, and transfer of sensitive content. Covers device onboarding validation, policy simulation and tuning, and workload-specific alert and escalation configuration.</div>
                     </div>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" value="Deploy DLP policies for Microsoft Teams chat and channel messages — including simulation mode testing, false positive tuning, and alert/incident management configuration" data-effort="10–16 hrs" data-tier="3" data-license="purview">
                     <div>
                         <div class="item-title">DLP for Teams</div>
-                        <div class="item-desc">Detect and block sensitive content shared in Teams chat and channel messages in real time. Includes simulation mode testing to validate policy behavior across internal and guest scenarios before enforcement, and configuration of alert notifications for policy match incidents.</div>
+                        <div class="item-desc">Detect and block sensitive content in Teams chat and channel messages in real time. Covers simulation testing across internal and guest scenarios before enforcement, and alert configuration for policy match incidents.</div>
                     </div>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" value="Deploy DLP policies for Microsoft 365 Copilot interactions — including simulation mode testing, false positive tuning, and alert/incident management configuration" data-effort="10–16 hrs" data-tier="3" data-license="purview">
                     <div>
                         <div class="item-title">DLP for Copilot</div>
-                        <div class="item-desc">Apply DLP controls to Microsoft 365 Copilot prompts and responses to prevent sensitive data exposure through AI interactions. Requires two policy rules — one for sensitive information types (SITs) and one for sensitivity labels — with simulation testing across both prompt and response scenarios before enforcement go-live, and alert configuration for Copilot-specific policy matches.</div>
+                        <div class="item-desc">Apply DLP controls to Copilot prompts and responses to prevent sensitive data exposure in AI interactions. Requires two rules — one for SITs, one for sensitivity labels — with simulation testing across prompt and response scenarios before enforcement go-live, and Copilot-specific alert configuration.</div>
                     </div>
                 </label>
                 <label class="checkbox-item">
@@ -1407,10 +1411,48 @@ function acknowledgeDisclaimer() {
 }
 
 // Show disclaimer modal on load if not yet acknowledged this session
+function initCollapsibleSections() {
+    var sections = document.querySelectorAll('.form-panel .form-section');
+    sections.forEach(function(section, index) {
+        // Sections 1 & 2 (index 0, 1) stay open and non-collapsible
+        if (index < 2) return;
+
+        var h2 = section.querySelector('h2');
+        if (!h2) return;
+
+        section.classList.add('collapsible');
+
+        // Wrap all children after h2 into a section-body div
+        var body = document.createElement('div');
+        body.className = 'section-body';
+        var children = Array.from(section.children);
+        children.forEach(function(child) {
+            if (child !== h2) body.appendChild(child);
+        });
+        section.appendChild(body);
+
+        // Add chevron indicator to h2
+        var chevron = document.createElement('span');
+        chevron.className = 'chevron';
+        chevron.textContent = '▾';
+        h2.appendChild(chevron);
+
+        // Collapse sections 3–6 by default
+        body.classList.add('collapsed');
+        h2.classList.add('collapsed');
+
+        h2.addEventListener('click', function() {
+            body.classList.toggle('collapsed');
+            h2.classList.toggle('collapsed');
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     if (!sessionStorage.getItem('disclaimerAcknowledged')) {
         document.getElementById('disclaimerOverlay').style.display = 'flex';
     }
+    initCollapsibleSections();
 });
 </script>
 
