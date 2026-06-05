@@ -8,6 +8,22 @@ All notable changes to `mip-sow-generator.html` are documented here.
 
 ---
 
+## [2026-06-05]
+
+### Changed — Collapsible Form Sections
+- Form sections **3–6** (Foundation Services, Intermediate Services, Advanced Services, Engagement Type) are now collapsible dropdowns with a `▾` chevron indicator. All four start collapsed by default.
+- Sections **1 & 2** (Engagement Details, Customer Environment) remain always open and non-interactive.
+- Only collapsible section headers show a pointer cursor; sections 1 & 2 use the default cursor.
+
+### Changed — DLP Service Descriptions (UI only)
+- Shortened `item-desc` text for all four DLP services to improve readability. SOW output (`value` attributes) is unchanged.
+  - **DLP Policies: Exchange, SharePoint & OneDrive** (P1): condensed description; "Included with M365 Business Premium" note retained.
+  - **DLP for Endpoints** (P3): condensed; device onboarding, simulation/tuning, and alert/escalation components retained.
+  - **DLP for Teams** (P3): condensed; internal/guest simulation and alert configuration components retained.
+  - **DLP for Copilot** (P3): condensed; dual-rule requirement (SITs + labels), simulation, and alert configuration components retained.
+
+---
+
 ## [2026-06-04] — Latest
 
 ### Changed — File Rename
