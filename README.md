@@ -1,8 +1,8 @@
 # MIP SOW Builder
 
-A single-page tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP)** engagements.
+A single-page tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP) & Data Loss Prevention (DLP)** engagements.
 
-**[Launch the tool →](https://hiteshsai.github.io/MIP-SOW-Builder/mip-sow-generator.html)**
+**[Launch the tool →](https://hiteshsai.github.io/MIP-SOW-Builder/data-security-sow-generator.html)**
 
 ## Features
 
@@ -14,15 +14,15 @@ A single-page tool for Microsoft channel partners to generate Statement of Work 
 
 ## Usage
 
-Open `mip-sow-generator.html` in any modern browser, fill in the form, select services, and click **Generate SOW Document**.
+Open `data-security-sow-generator.html` in any modern browser, fill in the form, select services, and click **Generate SOW Document**.
 
 ### Running locally
 
 ```
 # just open the file directly
-start mip-sow-generator.html        # Windows
-open mip-sow-generator.html         # macOS
-xdg-open mip-sow-generator.html     # Linux
+start data-security-sow-generator.html        # Windows
+open data-security-sow-generator.html         # macOS
+xdg-open data-security-sow-generator.html     # Linux
 ```
 
 ### Hosted on GitHub Pages
@@ -30,20 +30,20 @@ xdg-open mip-sow-generator.html     # Linux
 This repo deploys automatically via GitHub Pages. Every push to `main` publishes the tool at:
 
 ```
-https://hiteshsai.github.io/MIP-SOW-Builder/mip-sow-generator.html
+https://hiteshsai.github.io/MIP-SOW-Builder/data-security-sow-generator.html
 ```
 
 ## Project Structure
 
 ```
-mip-sow-generator.html   # The entire application (HTML + CSS + JS)
-AGENTS.md                 # AI agent instructions for this codebase
-README.md                 # This file
-.github/workflows/        # GitHub Pages deployment workflow
+data-security-sow-generator.html   # The entire application (HTML + CSS + JS)
+AGENTS.md                           # AI agent instructions for this codebase
+README.md                           # This file
+.github/workflows/                  # GitHub Pages deployment workflow
 ```
 
 ## Contributing
 
-1. Edit `mip-sow-generator.html` — all code lives in this single file
+1. Edit `data-security-sow-generator.html` — all code lives in this single file
 2. Open it in a browser to test your changes
 3. Push to `main` — GitHub Pages deploys automatically

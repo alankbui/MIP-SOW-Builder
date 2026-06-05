@@ -1,0 +1,13 @@
+{
+  "clarityAgent": {
+    "path": "C:/Program Files/Clarity/_internal",
+    "version": "1.0.0"
+  },
+  "thinkers": {
+    "disabled": [],
+    "custom": []
+  },
+  "processes": {
+    "custom": []
+  }
+}
