@@ -2,7 +2,7 @@
 
 A single-page tool for Microsoft channel partners to generate Statement of Work (SOW) documents for **Microsoft Purview Information Protection (MIP) & Data Loss Prevention (DLP)** engagements.
 
-**[Launch the tool →](https://hiteshsai.github.io/MIP-SOW-Builder/data-security-sow-generator.html)**
+**[Launch the tool →](https://alankbui.github.io/MIP-SOW-Builder/data-security-sow-generator.html)**
 
 ## Features
 
@@ -30,7 +30,7 @@ xdg-open data-security-sow-generator.html     # Linux
 This repo deploys automatically via GitHub Pages. Every push to `main` publishes the tool at:
 
 ```
-https://hiteshsai.github.io/MIP-SOW-Builder/data-security-sow-generator.html
+https://alankbui.github.io/MIP-SOW-Builder/data-security-sow-generator.html
 ```
 
 ## Project Structure
